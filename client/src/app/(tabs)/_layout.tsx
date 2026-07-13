@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Ionicons } from "@react-native-vector-icons/ionicons/static";
+import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { COLORS } from "@/constants";
 
 export default function TabLayout() {
@@ -8,25 +8,24 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.accent,
+        tabBarInactiveTintColor: '#cdcde0',
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: COLORS.background,
+          backgroundColor: '#fff',
           borderTopWidth: 1,
-          borderTopColor: COLORS.border,
+          borderTopColor: '#f0f0f0',
           height: 56,
-          paddingBottom: 8,
+          paddingTop: 8
         }
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
-              size={24}
+              size={26}
               color={color}
             />
           ),
@@ -35,11 +34,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="favorites"
         options={{
-          title: "Favorites",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "heart" : "heart-outline"}
-              size={24}
+              size={26}
               color={color}
             />
           ),
@@ -48,11 +46,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="cart"
         options={{
-          title: "Cart",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "cart" : "cart-outline"}
-              size={24}
+              size={26}
               color={color}
             />
           ),
@@ -61,11 +58,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "person" : "person-outline"}
-              size={24}
+              size={26}
               color={color}
             />
           ),

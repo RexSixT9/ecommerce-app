@@ -15,27 +15,28 @@ export default function Header({
   const router = useRouter();
 
   return (
-    <View className="flex-row items-center justify-between px-4 py-3 bg-white">
-      {/* LEFT ZONE: Back & Menu (takes up 25% width to balance right side) */}
-      <View className="flex-row items-center w-1/4">
+    <View className="relative flex-row items-center px-4 py-3 bg-white">
+      <View className="flex-row items-center" style={{ width: 84 }}>
         {showBack && (
-          <TouchableOpacity onPress={() => router.back()} className="mr-3">
+          <TouchableOpacity onPress={() => router.back()} className="mr-3 p-1">
             <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
         )}
         {showMenu && (
-          <TouchableOpacity className="mr-3">
+          <TouchableOpacity className="mr-3 p-1">
             <Ionicons name="menu-outline" size={28} color={COLORS.primary} />
           </TouchableOpacity>
         )}
       </View>
 
-      {/* CENTER ZONE: Logo or Title */}
-      <View className="flex-1 items-center justify-center">
+      <View
+        className="absolute inset-x-0 items-center justify-center"
+        pointerEvents="none"
+      >
         {showLogo ? (
           <Image
             source={require("../../assets/logo.png")}
-            className="w-24 h-8"
+            className="w-28 h-8"
             resizeMode="contain"
           />
         ) : (
@@ -50,15 +51,17 @@ export default function Header({
         )}
       </View>
 
-      {/* RIGHT ZONE: Search & Cart (takes up 25% width to balance left side) */}
-      <View className="flex-row items-center justify-end gap-4 w-1/4">
+      <View
+        className="ml-auto flex-row items-center justify-end gap-4"
+        style={{ width: 84 }}
+      >
         {showSearch && (
-          <TouchableOpacity>
+          <TouchableOpacity className="p-1">
             <Ionicons name="search-outline" size={24} color={COLORS.primary} />
           </TouchableOpacity>
         )}
         {showCart && (
-          <TouchableOpacity onPress={() => router.push("/(tabs)/cart")}>
+          <TouchableOpacity onPress={() => router.push("/(tabs)/cart")} className="p-1">
             <View className="relative">
               <Ionicons name="bag-outline" size={24} color={COLORS.primary} />
               <View className="absolute -top-2 -right-2 bg-accent rounded-full w-4 h-4 items-center justify-center z-10">

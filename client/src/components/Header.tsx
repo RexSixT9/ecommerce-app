@@ -1,6 +1,5 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { HeaderProps } from "@/constants/types";
-// Ensure this import is correct for your project (often @expo/vector-icons/Ionicons in Expo)
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { COLORS } from "@/constants";
 import { useRouter } from "expo-router";
@@ -35,8 +34,7 @@ export default function Header({
       <View className="flex-1 items-center justify-center">
         {showLogo ? (
           <Image
-            source={require("@/assets/logo.png")}
-            // Use fixed constraints for logos to prevent stretching UI
+            source={require("../../assets/logo.png")}
             className="w-24 h-8"
             resizeMode="contain"
           />

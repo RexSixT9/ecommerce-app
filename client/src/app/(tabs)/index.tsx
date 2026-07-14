@@ -30,10 +30,11 @@ export default function Home() {
             showsHorizontalScrollIndicator={false}
             pagingEnabled
             horizontal
+            snapToInterval={BANNER_WIDTH}
+            decelerationRate="fast"
             onScroll={(event) => {
               const index = Math.round(
-                event.nativeEvent.contentOffset.x /
-                  event.nativeEvent.layoutMeasurement.width,
+                event.nativeEvent.contentOffset.x / BANNER_WIDTH,
               );
               if (index !== activeBannerIndex) setActiveBanner(index);
             }}
@@ -41,7 +42,7 @@ export default function Home() {
           >
             {BANNERS.map((banner, index) => (
               <View
-                key={index}
+                key={banner.id}
                 style={{ width: BANNER_WIDTH }}
                 className="h-48 relative bg-gray-200 overflow-hidden rounded-xl"
               >

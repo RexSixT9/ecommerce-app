@@ -8,20 +8,21 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: '#cdcde0',
-        tabBarShowLabel: false,
+        tabBarInactiveTintColor: "#cdcde0",
+        tabBarShowLabel: true,
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: "#fff",
           borderTopWidth: 1,
-          borderTopColor: '#f0f0f0',
-          height: 56,
-          paddingTop: 8
-        }
+          borderTopColor: "#f0f0f0",
+          height: 64,
+          paddingTop: 4,
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
+          title: "Home",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
@@ -34,6 +35,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="favorites"
         options={{
+          title: "Favorites",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "heart" : "heart-outline"}
@@ -46,6 +48,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="cart"
         options={{
+          title: "Cart",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "cart" : "cart-outline"}
@@ -58,6 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
+          title: "Profile",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "person" : "person-outline"}

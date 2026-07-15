@@ -6,22 +6,43 @@ import {
   Image,
   TouchableOpacity,
   useWindowDimensions,
+  Pressable,
+  ActivityIndicator,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/Header";
-import { BANNERS } from "@/assets/assets";
+import { BANNERS, dummyProducts } from "@/assets/assets";
+import { CATEGORIES } from "@/constants";
+import CategoryItem from "@/components/CategoryItem";
+import { router } from "expo-router";
+import { Product } from "@/constants/types";
+import ProductCard from "@/components/ProductCard";
 
 export default function Home() {
   const { width } = useWindowDimensions();
   const BANNER_CARD_WIDTH = width - 32;
   const [activeBannerIndex, setActiveBanner] = useState(0);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const categories = [{ id: "all", name: "All", icon: "grid" }, ...CATEGORIES];
+
+  const fetchProducts = async () => {
+    setProducts(dummyProducts);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       <Header showMenu showCart showLogo title="Home" />
 
       <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
+        {/* Banners */}
         <View className="mt-4 -mx-4">
           <FlatList
             data={BANNERS}
@@ -44,10 +65,7 @@ export default function Home() {
               setActiveBanner(Math.max(0, Math.min(index, BANNERS.length - 1)));
             }}
             renderItem={({ item }) => (
-              <View
-                style={{ width }}
-                className="h-48 justify-center"
-              >
+              <View style={{ width }} className="h-48 justify-center">
                 <View
                   style={{ width: BANNER_CARD_WIDTH }}
                   className="mx-4 h-48 relative bg-gray-200 overflow-hidden rounded-xl"
@@ -92,6 +110,58 @@ export default function Home() {
             ))}
           </View>
         </View>
+
+        {/* Categories */}
+        <View className="mb-6">
+          <View className="flex-row items-center justify-between mb-4">
+            <Text className="text-lg font-bold text-primary">Categories</Text>
+          </View>
+          <FlatList
+            data={categories}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <CategoryItem
+                item={item}
+                isSelected={false}
+                onPress={() => {
+                  router.push({
+                    pathname: `/cart`,
+                    params: { category: item.id == "all" ? "" : item.id },
+                  });
+                }}
+              />
+            )}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+
+        {/* Popular Products */}
+        <View className="mb-6">
+          <View className="flex-row items-center justify-between mb-4">
+            <Text className="text-xl font-bold text-primary">
+              Popular Products
+            </Text>
+            <Pressable onPress={() => router.push("/cart")}>
+              <Text className="text-secondary text-sm font-medium">
+                See All
+              </Text>
+            </Pressable>
+          </View>
+
+          {loading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : (
+            <View className="flex-row flex-wrap justify-between">
+              {products.slice(0, 4).map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Newsletter CTA */}
+        
       </ScrollView>
     </SafeAreaView>
   );

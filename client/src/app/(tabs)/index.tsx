@@ -42,6 +42,7 @@ export default function Home() {
       <Header showMenu showCart showLogo title="Home" />
 
       <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
+        
         {/* Banners */}
         <View className="mt-4 -mx-4">
           <FlatList
@@ -85,8 +86,8 @@ export default function Home() {
                     <Text className="text-white text-sm font-medium mt-1">
                       {item.subtitle}
                     </Text>
-                    <View className="mt-2 bg-primary px-4 py-2 rounded-full self-start">
-                      <Text className="text-white text-xs font-bold">
+                    <View className="mt-2 bg-white px-4 py-2 rounded-full self-start">
+                      <Text className="text-primary text-xs font-bold">
                         Get Now
                       </Text>
                     </View>
@@ -161,7 +162,18 @@ export default function Home() {
         </View>
 
         {/* Newsletter CTA */}
-        
+        <View className="bg-gray-100 p-6 rounded-xl items-center justify-center mb-6">
+          <Text className="text-lg font-bold text-primary mb-2">
+            Subscribe to our Newsletter
+          </Text>
+          <Text className="text-gray-600 text-sm mb-4">
+            Get the latest updates and offers directly in your inbox.
+          </Text>
+          <TouchableOpacity className="bg-primary py-3 px-6 rounded-full">
+            <Text className="text-white font-bold text-center">Subscribe</Text>
+          </TouchableOpacity>
+        </View>
+
       </ScrollView>
     </SafeAreaView>
   );

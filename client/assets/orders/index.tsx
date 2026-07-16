@@ -75,7 +75,7 @@ export default function Orders() {
                                 {item.items.map((prod: any, idx) => {
                                     const image = prod.product?.images?.[0];
                                     return (
-                                        <View key={idx} className="mr-3 border border-gray-100 rounded-md p-1 bg-gray-50">
+                                        <View key={prod._id ?? prod.product?._id ?? idx} className="mr-3 border border-gray-100 rounded-md p-1 bg-gray-50">
                                             {image ? (
                                                 <Image
                                                     source={{ uri: image }}

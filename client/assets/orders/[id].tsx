@@ -60,7 +60,7 @@ export default function OrderDetails() {
                     <Text className="text-lg font-bold text-primary mb-4">Order Status</Text>
 
                     {ORDER_STEPS.map((step, index) => (
-                        <View key={index} className="flex-row mb-4 last:mb-0">
+                        <View key={step.title} className="flex-row mb-4 last:mb-0">
                             <View className="items-center mr-4">
                                 <View className={`w-3 h-3 rounded-full ${step.completed ? 'bg-primary' : 'bg-gray-300'}`} />
                                 {index !== ORDER_STEPS.length - 1 && (
@@ -84,7 +84,7 @@ export default function OrderDetails() {
                         const image = productData?.images?.[0];
 
                         return (
-                            <View key={index} className={`flex-row ${index !== order.items.length - 1 && 'border-b border-gray-100 pb-4 mb-4'}`}>
+                            <View key={item._id ?? productData?._id ?? index} className={`flex-row ${index !== order.items.length - 1 && 'border-b border-gray-100 pb-4 mb-4'}`}>
                                 {image && <Image source={{ uri: image }} className="w-16 h-16 rounded-lg bg-gray-100" resizeMode="contain" />}
                                 <View className="flex-1 ml-3 justify-center">
                                     <Text className="text-primary font-medium" numberOfLines={1}>{item.name}</Text>

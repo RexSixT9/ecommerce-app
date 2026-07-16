@@ -1282,10 +1282,15 @@ export const dummyCart = {
   createdAt: "2026-02-05T07:14:22.429Z",
 };
 
+const runningShoes = dummyProducts.find((product) => product._id === "698442cfda74ab16485b6061")!;
+const menTrousers = dummyProducts.find((product) => product._id === "6683d4d97f779795ecfa98ad")!;
+const menCottonTshirt = dummyProducts.find((product) => product._id === "6683d3d47f779795ecfa98a3")!;
+const menDenimJacket = dummyProducts.find((product) => product._id === "6683d9847f779795ecfa98ef")!;
+
 export const dummyWishlist = [
-  dummyProducts[3],
-  dummyProducts[10],
-  dummyProducts[6],
+  runningShoes,
+  menTrousers,
+  menCottonTshirt,
 ];
 
 export const dummyOrders = [
@@ -1301,16 +1306,16 @@ export const dummyOrders = [
     user: "69819801a872c913f84d13f4",
     items: [
       {
-        product: dummyProducts[6],
-        name: dummyProducts[6].name,
+        product: menCottonTshirt,
+        name: menCottonTshirt.name,
         quantity: 1,
-        price: dummyProducts[6].price,
+        price: menCottonTshirt.price,
         size: "L",
         _id: "69895582ef9d0c746ef8284a",
       },
       {
-        product: dummyProducts[10],
-        name: dummyProducts[10].name,
+        product: menTrousers,
+        name: menTrousers.name,
         quantity: 1,
         price: 28,
         size: "L",
@@ -1341,18 +1346,18 @@ export const dummyOrders = [
     user: "69819801a872c913f84d13f4",
     items: [
       {
-        product: dummyProducts[14],
-        name: dummyProducts[14].name,
+        product: menDenimJacket,
+        name: menDenimJacket.name,
         quantity: 1,
-        price: dummyProducts[14].price,
+        price: menDenimJacket.price,
         size: "M",
         _id: "69895557ef9d0c746ef8280e",
       },
       {
-        product: dummyProducts[10],
-        name: dummyProducts[10].name,
+        product: menTrousers,
+        name: menTrousers.name,
         quantity: 1,
-        price: dummyProducts[10].price,
+        price: menTrousers.price,
         size: "L",
         _id: "69895557ef9d0c746ef8280f",
       },

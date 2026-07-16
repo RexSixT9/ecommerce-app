@@ -46,7 +46,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       productId: item.product._id,
       product: item.product,
       quantity: item.quantity,
-      size: item.size,
+      size: item?.size || "M",
       price: item.price,
     }));
     setCartItems(mappedItems);

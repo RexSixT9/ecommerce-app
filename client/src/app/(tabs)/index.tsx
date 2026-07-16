@@ -143,7 +143,7 @@ export default function Home() {
             <Text className="text-xl font-bold text-primary">
               Popular Products
             </Text>
-            <Pressable onPress={() => router.push("/cart")}>
+            <Pressable onPress={() => router.push("/shop")}>
               <Text className="text-secondary text-sm font-medium">
                 See All
               </Text>

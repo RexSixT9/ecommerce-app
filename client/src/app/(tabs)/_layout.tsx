@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Ionicons } from "@react-native-vector-icons/ionicons/static";
+import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { COLORS } from "@/constants";
 
 export default function TabLayout() {
@@ -8,15 +8,15 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.accent,
-        tabBarShowLabel: false,
+        tabBarInactiveTintColor: "#cdcde0",
+        tabBarShowLabel: true,
         tabBarStyle: {
-          backgroundColor: COLORS.background,
+          backgroundColor: "#fff",
           borderTopWidth: 1,
-          borderTopColor: COLORS.border,
-          height: 56,
-          paddingBottom: 8,
-        }
+          borderTopColor: "#f0f0f0",
+          height: 64,
+          paddingTop: 4,
+        },
       }}
     >
       <Tabs.Screen
@@ -26,7 +26,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
-              size={24}
+              size={26}
               color={color}
             />
           ),
@@ -39,7 +39,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "heart" : "heart-outline"}
-              size={24}
+              size={26}
               color={color}
             />
           ),
@@ -52,7 +52,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "cart" : "cart-outline"}
-              size={24}
+              size={26}
               color={color}
             />
           ),
@@ -65,7 +65,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "person" : "person-outline"}
-              size={24}
+              size={26}
               color={color}
             />
           ),

@@ -3,6 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
+      "*": [
+        "./*"
+      ],
       "@/*": [
         "./src/*"
       ],
@@ -12,8 +15,16 @@
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
+    "src/app/**/*.ts",
+    "src/app/**/*.tsx",
+    "src/components/**/*.ts",
+    "src/components/**/*.tsx",
+    "src/context/**/*.ts",
+    "src/context/**/*.tsx",
+    "src/constants/**/*.ts",
+    "src/constants/**/*.tsx",
+    "src/types/**/*.ts",
+    "assets/assets.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts"

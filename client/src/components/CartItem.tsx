@@ -12,7 +12,7 @@ export default function CartItem({
   const imageUrl = item.product.images[0] || "https://via.placeholder.com/150";
 
   return (
-    <View className="flex-row mb-4 bg-white p-3 rounded-xl shadow-md">
+    <View className="flex-row mb-4 bg-white p-3 rounded-xl shadow-sm">
       <View className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden mr-3">
         <Image
           source={{ uri: imageUrl }}
@@ -33,7 +33,6 @@ export default function CartItem({
           </View>
           <Pressable onPress={onRemove} className="mt-1">
             <Ionicons name="trash-outline" size={20} color="#FF4C3B" />
-            <Text className="text-red-500 text-xs">Remove</Text>
           </Pressable>
         </View>
 

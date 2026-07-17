@@ -46,3 +46,5 @@ example
 *.log
 .claude
 .vscode
+
+*.txt

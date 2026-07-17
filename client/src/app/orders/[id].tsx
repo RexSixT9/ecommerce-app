@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, Text, View, ActivityIndicator } from "react-native";

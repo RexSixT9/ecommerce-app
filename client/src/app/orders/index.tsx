@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View, ActivityIndicator, ScrollView, Image } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/Header";
 import { COLORS, getStatusColor } from "@/constants";

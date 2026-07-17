@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@react-native-vector-icons/ionicons";
 import React, { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View, Modal, TextInput, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -76,7 +76,7 @@ export default function Addresses() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-surface" edges={['top']}>
+        <SafeAreaView className="flex-1 bg-white" edges={['top']}>
             <Header title="Shipping Addresses" showBack />
 
             {loading ? (

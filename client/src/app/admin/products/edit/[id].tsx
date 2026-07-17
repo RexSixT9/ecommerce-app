@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View, Switch, Image, ActivityIndicator, Platform, Modal, FlatList, TouchableWithoutFeedback } from "react-native";
 import Toast from 'react-native-toast-message';
 import { COLORS, CATEGORIES } from "@/constants";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@react-native-vector-icons/ionicons";
 import * as ImagePicker from "expo-image-picker";
 import { dummyProducts } from "@/assets/assets";
 

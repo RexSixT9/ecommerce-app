@@ -1,7 +1,7 @@
 import { Tabs, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { View, ActivityIndicator, TouchableOpacity, Text } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { COLORS } from "@/constants";
 import { dummyUser } from "@/assets/assets";
 

@@ -20,7 +20,7 @@ export default function Cart() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      <Header showBack showSearch title="Cart" />
+      <Header showBack title="Cart" />
 
       {cartItems.length > 0 ? (
         <>
@@ -40,7 +40,7 @@ export default function Cart() {
             ))}
           </ScrollView>
 
-          <View className="p-4 bg-white rounded-t-3xl shadow-sm">
+          <View className="p-4 bg-white rounded-t-3xl shadow-md">
             {/* Total */}
             <View className="flex-row justify-between items-center mb-2">
               <Text className="text-secondary">Total: </Text>
@@ -57,7 +57,7 @@ export default function Cart() {
               </Text>
             </View>
 
-            <View className="h-1 bg-border mb-4" />
+            <View className="h-[1px] bg-border mb-2" />
 
             {/* Grand Total */}
             <View className="flex-row justify-between items-center mb-6">

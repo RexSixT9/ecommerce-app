@@ -74,7 +74,7 @@ export default function Checkout() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
       <Header title="Checkout" showBack />
 
       <ScrollView
@@ -88,17 +88,21 @@ export default function Checkout() {
         {selectedAddress ? (
           <View className="bg-white p-4 rounded-xl mb-6 border border-gray-100">
             <View className="flex-row justify-between items-center mb-2">
-              <Text className="text-secondary text-base font-bold">
+              <Text className="text-primary text-base font-bold">
                 {selectedAddress.type}
               </Text>
               <Pressable
                 className="flex-row items-center"
                 onPress={() => router.push("/addresses")}
               >
-                <Text className="text-accent text-sm">Change</Text>
+                <Ionicons
+                  name="pencil-outline"
+                  size={20}
+                  color={COLORS.primary}
+                />
               </Pressable>
             </View>
-            <Text className="text-secondary text-sm">
+            <Text className="text-secondary text-sm font-medium">
               {selectedAddress.street}, {selectedAddress.city},{"\n"}
               {selectedAddress.state} - {selectedAddress.zipCode},{" "}
               {selectedAddress.country}
@@ -109,6 +113,7 @@ export default function Checkout() {
             className="bg-white p-6 rounded-xl mb-6 items-center justify-center border-dashed border-2 border-gray-100"
             onPress={() => router.push("/addresses")}
           >
+            <Ionicons name="add-outline" size={24} color={COLORS.primary} />
             <Text className="text-secondary text-base mt-2">Add Address</Text>
           </Pressable>
         )}
@@ -117,28 +122,21 @@ export default function Checkout() {
         <Text className="text-lg font-bold text-primary mb-4">
           Payment Method
         </Text>
+
+        {/* Cash on Delivery */}
         <Pressable
-          className="flex-row items-center justify-between"
-          onPress={() => setPaymentMethod("stripe")}
-        >
-          <Ionicons name="card-outline" size={24} color={COLORS.primary} />
-          <Text className="text-secondary text-base">Stripe</Text>
-          {paymentMethod === "stripe" && (
-            <Ionicons
-              name="checkmark-circle"
-              size={24}
-              color={COLORS.primary}
-            />
-          )}
-        </Pressable>
-        <Pressable
-          className="flex-row items-center justify-between mt-4"
+          className={`flex-row items-center justify-between mb-4  ${paymentMethod === "cash" ? "bg-gray-100 border-gray-300" : ""} p-4 rounded-xl border border-gray-100`}
           onPress={() => setPaymentMethod("cash")}
         >
-          <Text className="text-secondary text-base">Cash on Delivery</Text>
-          <Text className="text-secondary text-sm">
-            (Pay when you receive the order)
-          </Text>
+          <Ionicons name="cash-outline" size={24} color={COLORS.primary} />
+          <View className="ml-3 flex-1">
+            <Text className="text-primary text-base font-bold">
+              Cash on Delivery
+            </Text>
+            <Text className="text-secondary text-xs mt-1">
+              Pay when you receive the order
+            </Text>
+          </View>
           {paymentMethod === "cash" && (
             <Ionicons
               name="checkmark-circle"
@@ -147,7 +145,69 @@ export default function Checkout() {
             />
           )}
         </Pressable>
+
+        {/* Stripe */}
+        <Pressable
+          className={`flex-row items-center justify-between mb-4  ${paymentMethod === "stripe" ? "bg-gray-100 border-gray-300" : ""} p-4 rounded-xl border border-gray-100`}
+          onPress={() => setPaymentMethod("stripe")}
+        >
+          <Ionicons name="card-outline" size={24} color={COLORS.primary} />
+          <View className="ml-3 flex-1">
+            <Text className="text-primary text-base font-bold">
+              Credit / Debit Card
+            </Text>
+            <Text className="text-secondary text-xs mt-1">
+              Pay with your credit or debit card
+            </Text>
+          </View>
+          {paymentMethod === "stripe" && (
+            <Ionicons
+              name="checkmark-circle"
+              size={24}
+              color={COLORS.primary}
+            />
+          )}
+        </Pressable>
       </ScrollView>
+
+      {/* Order Summary */}
+      <View className="bg-white p-4 border-t border-gray-100 shadow-lg">
+        <Text className="text-primary text-base font-bold mb-2">
+          Order Summary:
+        </Text>
+        <View className="flex-row justify-between mb-1">
+          <Text className="text-secondary text-sm">Subtotal</Text>
+          <Text className="text-secondary text-sm">
+            ${cartTotal.toFixed(2)}
+          </Text>
+        </View>
+        <View className="flex-row justify-between mb-1">
+          <Text className="text-secondary text-sm">Shipping</Text>
+          <Text className="text-secondary text-sm">${shipping.toFixed(2)}</Text>
+        </View>
+        <View className="flex-row justify-between mb-1">
+          <Text className="text-secondary text-sm">Tax</Text>
+          <Text className="text-secondary text-sm">${tax.toFixed(2)}</Text>
+        </View>
+        <View className="flex-row justify-between mt-2 pt-2 border-t border-gray-100">
+          <Text className="text-primary text-base font-bold">Total</Text>
+          <Text className="text-primary text-base font-bold">
+            ${total.toFixed(2)}
+          </Text>
+        </View>
+
+        <Pressable
+          className={`py-3 rounded-xl mt-4 items-center justify-center ${loading ? "bg-gray-400" : "bg-primary"}`}
+          onPress={handlePlaceOrder}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text className="text-white text-base font-bold">Place Order</Text>
+          )}
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }

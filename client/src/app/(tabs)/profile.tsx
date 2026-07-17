@@ -111,7 +111,7 @@ export default function Profile() {
 
             {/* Logout Button */}
             <Pressable
-              className="flex-row items-center p-4 rounded-xl justify-center bg-accent/10 border border-accent"
+              className="flex-row items-center p-4 rounded-xl justify-center bg-accent/10 border border-accent/30"
               onPress={handleLogout}
             >
               <Text className="text-red-500 ml-2 font-bold">Logout</Text>

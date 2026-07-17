@@ -60,7 +60,7 @@ export default function Cart() {
             <View className="h-[1px] bg-border mb-2" />
 
             {/* Grand Total */}
-            <View className="flex-row justify-between items-center mb-6">
+            <View className="flex-row justify-between items-center mb-2">
               <Text className="text-primary font-bold text-lg">
                 Grand Total:{" "}
               </Text>
@@ -71,7 +71,7 @@ export default function Cart() {
 
             {/* Check out */}
             <Pressable
-              className="bg-primary py-4 items-center rounded-full"
+              className="bg-primary py-3 rounded-xl mt-4 items-center justify-center"
               onPress={() => router.push("/checkout")}
             >
               <Text className="text-white font-bold text-base">Checkout</Text>
@@ -84,7 +84,7 @@ export default function Cart() {
             Your cart is empty.
           </Text>
           <Pressable
-            className="mt-4 bg-primary py-4 px-4 rounded-full"
+            className="mt-4 bg-primary py-3 rounded-xl px-6 items-center justify-center"
             onPress={() => router.push("/")}
           >
             <Text className="text-white font-bold">Continue Shopping</Text>

@@ -59,7 +59,7 @@ export default function Shop() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
       <Header showBack showCart title="Shop" />
       <View className="flex-row gap-2 mb-3 mx-4 my-2">
         {/* Search Input */}

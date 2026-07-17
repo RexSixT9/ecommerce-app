@@ -81,7 +81,10 @@ export default function Checkout() {
         className="flex-1 px-4 mt-4"
         showsVerticalScrollIndicator={false}
       >
-        <Text className="text-lg font-bold text-primary mb-4">Shipping Address</Text>
+        {/* Shipping Address */}
+        <Text className="text-lg font-bold text-primary mb-4">
+          Shipping Address
+        </Text>
         {selectedAddress ? (
           <View className="bg-white p-4 rounded-xl mb-6 border border-gray-100">
             <View className="flex-row justify-between items-center mb-2">
@@ -97,7 +100,8 @@ export default function Checkout() {
             </View>
             <Text className="text-secondary text-sm">
               {selectedAddress.street}, {selectedAddress.city},{"\n"}
-              {selectedAddress.state} - {selectedAddress.zipCode}, {selectedAddress.country}
+              {selectedAddress.state} - {selectedAddress.zipCode},{" "}
+              {selectedAddress.country}
             </Text>
           </View>
         ) : (
@@ -109,27 +113,40 @@ export default function Checkout() {
           </Pressable>
         )}
 
-        <Text className="text-lg font-bold text-primary mb-4">Payment Method</Text>
-        <View className="bg-white p-4 rounded-xl mb-6 border border-gray-100">
-          <Pressable
-            className="flex-row items-center justify-between"
-            onPress={() => setPaymentMethod("stripe")}
-          >
-            <Text className="text-secondary text-base">Stripe</Text>
-            {paymentMethod === "stripe" && (
-              <Ionicons name="checkmark-circle" size={24} color={COLORS.primary} />
-            )}
-          </Pressable>
-          <Pressable
-            className="flex-row items-center justify-between mt-4"
-            onPress={() => setPaymentMethod("cash")}
-          >
-            <Text className="text-secondary text-base">Cash on Delivery</Text>
-            {paymentMethod === "cash" && (
-              <Ionicons name="checkmark-circle" size={24} color={COLORS.primary} />
-            )}
-          </Pressable>
-        </View>
+        {/* Payment Method */}
+        <Text className="text-lg font-bold text-primary mb-4">
+          Payment Method
+        </Text>
+        <Pressable
+          className="flex-row items-center justify-between"
+          onPress={() => setPaymentMethod("stripe")}
+        >
+          <Ionicons name="card-outline" size={24} color={COLORS.primary} />
+          <Text className="text-secondary text-base">Stripe</Text>
+          {paymentMethod === "stripe" && (
+            <Ionicons
+              name="checkmark-circle"
+              size={24}
+              color={COLORS.primary}
+            />
+          )}
+        </Pressable>
+        <Pressable
+          className="flex-row items-center justify-between mt-4"
+          onPress={() => setPaymentMethod("cash")}
+        >
+          <Text className="text-secondary text-base">Cash on Delivery</Text>
+          <Text className="text-secondary text-sm">
+            (Pay when you receive the order)
+          </Text>
+          {paymentMethod === "cash" && (
+            <Ionicons
+              name="checkmark-circle"
+              size={24}
+              color={COLORS.primary}
+            />
+          )}
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );

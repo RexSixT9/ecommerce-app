@@ -1,4 +1,3 @@
-import { dummyUser } from "assets/assets";
 import { useRouter } from "expo-router";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import React from "react";
@@ -6,12 +5,14 @@ import { View, Text, ScrollView, Pressable, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "src/components/Header";
 import { COLORS, PROFILE_MENU } from "src/constants";
+import { useClerk } from "@clerk/expo";
 
 export default function Profile() {
-  const { user } = { user: dummyUser }; // Replace with actual user context or state
+  const { user, signOut } = useClerk();
   const router = useRouter();
 
   const handleLogout = async () => {
+    await signOut();
     router.replace("/sign-in");
   };
 
@@ -46,7 +47,7 @@ export default function Profile() {
             </Text>
             <Pressable
               className="bg-primary w-3/5 py-3 rounded-full items-center shadow-lg"
-              onPress={() => router.push("/cart")}
+              onPress={() => router.push("/sign-in")}
             >
               <Text className="text-white font-bold text-lg">
                 Log In / Sign Up
@@ -73,7 +74,7 @@ export default function Profile() {
               {/* Admin Panel */}
               {user.publicMetadata?.role === "admin" && (
                 <Pressable
-                  className="mt-4 bg-primary px-6 py-3 rounded-full"
+                  className="mt-4 bg-primary px-4 py-2 rounded-full"
                   onPress={() => router.push("/admin")}
                 >
                   <Text className="text-white font-bold">Admin Panel</Text>

@@ -1,15 +1,21 @@
 import mongoose from "mongoose";
 
-export const connectDB = async (): Promise<void> => {
+let cached: typeof mongoose | null = null;
+
+export const connectDB = async (): Promise<typeof mongoose> => {
+  if (cached) {
+    return cached;
+  }
+
   const mongoURI = process.env.MONGODB_URI;
 
   if (!mongoURI) {
     throw new Error("MONGODB_URI is not defined");
   }
 
-  mongoose.connection.on("connected", () => {
-    console.log("MongoDB connected successfully");
-  });
+  const conn = await mongoose.connect(mongoURI);
 
-  await mongoose.connect(mongoURI);
+  cached = conn;
+
+  return conn;
 };

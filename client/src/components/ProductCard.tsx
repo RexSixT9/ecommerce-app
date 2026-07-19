@@ -14,7 +14,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/product/${product._id}`} asChild>
       <Pressable
-        className="w-[48%] mb-4 bg-white rounded-lg overflow-hidden"
+        className="w-[48%] mb-4 bg-surface/50 rounded-lg overflow-hidden"
         style={({ pressed }) => ({
           opacity: pressed ? 0.95 : 1,
           transform: [{ scale: pressed ? 0.98 : 1 }],
@@ -49,7 +49,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Featured Badge */}
           {product.isFeatured && (
-            <View className="absolute top-2 left-2 bg-primary px-2 py-1 rounded">
+            <View className="absolute top-2 left-2 bg-primary/75 px-2 py-1 rounded">
               <Text className="text-white text-xs font-bold uppercase">
                 Featured
               </Text>

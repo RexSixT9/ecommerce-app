@@ -23,7 +23,6 @@
     "src/context/**/*.tsx",
     "src/constants/**/*.ts",
     "src/constants/**/*.tsx",
-    "src/types/**/*.ts",
     "assets/assets.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",

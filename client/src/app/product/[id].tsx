@@ -80,7 +80,7 @@ export default function ProductDetails() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Image Carousel */}
         <View className="h-[450px] bg-gray-100 relative mb-6">

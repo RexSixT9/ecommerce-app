@@ -1,8 +1,12 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { COLORS } from "@/constants";
+import { useCart } from "src/context/CartContext";
+import { View } from "react-native";
 
 export default function TabLayout() {
+  const { cartItems } = useCart();
+
   return (
     <Tabs
       screenOptions={{
@@ -50,11 +54,17 @@ export default function TabLayout() {
         options={{
           title: "Cart",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "cart" : "cart-outline"}
-              size={26}
-              color={color}
-            />
+            <View className="relative">
+              <Ionicons
+                name={focused ? "cart" : "cart-outline"}
+                size={26}
+                color={color}
+              />
+              {cartItems.length > 0 && (
+                <View className="absolute -top-1 -right-1 bg-accent rounded-full size-2 flex items-center justify-center">
+                </View>
+              )}
+            </View>
           ),
         }}
       />

@@ -15,7 +15,11 @@ app.use(clerkMiddleware());
 const port = process.env.PORT || 3000;
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Server is Live!");
+  res.json({
+    message: "Welcome to the E-commerce API",
+    status: "success",
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.listen(port, () => {

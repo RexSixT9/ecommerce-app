@@ -3,25 +3,39 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
 import { clerkMiddleware } from "@clerk/express";
+import { clerkWebhook } from "./controllers/webhooks.js";
 
 const app = express();
-await connectDB();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(clerkMiddleware());
 
+app.use("/api/webhooks", express.raw({ type: "application/json" }), clerkWebhook);
+
+app.get("/", async (_req: Request, res: Response) => {
+  try {
+    await connectDB();
+    res.json({
+      message: "Welcome to the E-commerce API",
+      status: "success",
+      timestamp: new Date().toISOString(),
+    });
+  } catch {
+    res.status(500).json({
+      message: "Database connection failed",
+      status: "error",
+    });
+  }
+});
+
 const port = process.env.PORT || 3000;
 
-app.get("/", (req: Request, res: Response) => {
-  res.json({
-    message: "Welcome to the E-commerce API",
-    status: "success",
-    timestamp: new Date().toISOString(),
+if (process.env.VERCEL !== "1") {
+  app.listen(port, async () => {
+    await connectDB();
+    console.log(`Server running on http://localhost:${port}`);
   });
-});
+}
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+export default app;

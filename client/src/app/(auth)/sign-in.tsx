@@ -1,7 +1,7 @@
 import { COLORS } from "@/constants";
-import { useSignIn } from "@clerk/expo";
+import { useSignIn } from "@clerk/expo/legacy";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
-import { Link, type Href, useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import * as React from "react";
 import {
   Pressable,
@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Page() {
-  const { signIn } = useSignIn();
+  const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
 
   const [emailAddress, setEmailAddress] = React.useState("");
@@ -23,60 +23,36 @@ export default function Page() {
   const [showEmailCode, setShowEmailCode] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
-  const completeSignIn = async () => {
-    await signIn.finalize({
-      navigate: ({ decorateUrl }) => {
-        const url = decorateUrl("/");
-
-        if (url.startsWith("http")) {
-          window.location.href = url;
-          return;
-        }
-
-        router.replace(url as Href);
-      },
-    });
-  };
-
   const onSignInPress = async () => {
+    if (!isLoaded) return;
     if (!emailAddress || !password) return;
 
     setLoading(true);
 
     try {
-      const { error } = await signIn.password({
-        emailAddress,
+      const signInAttempt = await signIn.create({
+        identifier: emailAddress,
         password,
       });
 
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      if (signIn.status === "complete") {
-        await completeSignIn();
-        return;
-      }
-
-      if (signIn.status === "needs_second_factor") {
-        const hasEmailCodeFactor = signIn.supportedSecondFactors?.some(
-          (factor) => factor.strategy === "email_code",
+      if (signInAttempt.status === "complete") {
+        await setActive({
+          session: signInAttempt.createdSessionId,
+        });
+        router.replace("/");
+      } else if (signInAttempt.status === "needs_second_factor") {
+        const emailCodeFactor = signInAttempt.supportedSecondFactors?.find(
+          (factor: any) => factor.strategy === "email_code",
         );
 
-        if (hasEmailCodeFactor) {
-          const { error: sendCodeError } = await signIn.mfa.sendEmailCode();
-          if (sendCodeError) {
-            console.error(sendCodeError);
-            return;
-          }
-
+        if (emailCodeFactor) {
+          await signIn.prepareSecondFactor({
+            strategy: "email_code",
+            emailAddressId: (emailCodeFactor as any).emailAddressId,
+          });
           setShowEmailCode(true);
-          return;
         }
       }
-
-      console.error("Sign-in attempt not complete:", signIn);
     } catch (err) {
       console.error(err);
     } finally {
@@ -85,21 +61,22 @@ export default function Page() {
   };
 
   const onVerifyPress = async () => {
+    if (!isLoaded || !code) return;
+
     if (!code) return;
 
     setLoading(true);
     try {
-      const { error } = await signIn.mfa.verifyEmailCode({
+      const attempt = await signIn.attemptSecondFactor({
+        strategy: "email_code",
         code,
       });
 
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      if (signIn.status === "complete") {
-        await completeSignIn();
+      if (attempt.status === "complete") {
+        await setActive({
+          session: attempt.createdSessionId,
+        });
+        router.replace("/");
       }
     } catch (err) {
       console.error(err);

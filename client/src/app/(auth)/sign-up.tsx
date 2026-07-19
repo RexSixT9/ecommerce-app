@@ -9,12 +9,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
-import { useRouter, type Href, Link } from "expo-router";
-import { useSignUp } from "@clerk/expo";
+import { useRouter, Link } from "expo-router";
+import { useSignUp } from "@clerk/expo/legacy";
 import { COLORS } from "@/constants";
 
 export default function SignUpScreen() {
-  const { signUp } = useSignUp();
+  const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
 
   const [emailAddress, setEmailAddress] = useState("");
@@ -25,22 +25,9 @@ export default function SignUpScreen() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const completeSignUp = async () => {
-    await signUp.finalize({
-      navigate: ({ decorateUrl }) => {
-        const url = decorateUrl("/");
-
-        if (url.startsWith("http")) {
-          window.location.href = url;
-          return;
-        }
-
-        router.replace(url as Href);
-      },
-    });
-  };
-
   const onSignUpPress = async () => {
+    if (!isLoaded) return;
+
     if (!emailAddress || !password) {
       Toast.show({
         type: "error",
@@ -52,44 +39,23 @@ export default function SignUpScreen() {
 
     setLoading(true);
     try {
-      const { error } = await signUp.password({
+      await signUp.create({
         emailAddress,
         password,
         firstName,
         lastName,
       });
 
-      if (error) {
-        Toast.show({
-          type: "error",
-          text1: "Failed to Sign Up",
-          text2: error.longMessage ?? "Something went wrong",
-        });
-        return;
-      }
-
-      if (signUp.status === "complete") {
-        await completeSignUp();
-        return;
-      }
-
-      const { error: sendCodeError } = await signUp.verifications.sendEmailCode();
-
-      if (sendCodeError) {
-        Toast.show({
-          type: "error",
-          text1: "Failed to Send Verification",
-          text2: sendCodeError.longMessage ?? "Something went wrong",
-        });
-        return;
-      }
+      await signUp.prepareEmailAddressVerification({
+        strategy: "email_code",
+      });
 
       setPendingVerification(true);
     } catch (err: any) {
       Toast.show({
         type: "error",
         text1: "Failed to Sign Up",
-        text2: err?.longMessage ?? err?.message ?? "Something went wrong",
+        text2: err?.errors?.[0]?.message ?? "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -97,6 +63,8 @@ export default function SignUpScreen() {
   };
 
   const onVerifyPress = async () => {
+    if (!isLoaded) return;
+
     if (!code) {
       Toast.show({
         type: "error",
@@ -108,26 +76,22 @@ export default function SignUpScreen() {
 
     setLoading(true);
     try {
-      const { error } = await signUp.verifications.verifyEmailCode({ code });
+      const attempt = await signUp.attemptEmailAddressVerification({ code });
 
-      if (error) {
+      if (attempt.status === "complete") {
+        await setActive({ session: attempt.createdSessionId });
+        router.replace("/");
+      } else {
         Toast.show({
           type: "error",
-          text1: "Failed to Verify",
-          text2: error.longMessage ?? "Invalid code",
+          text1: "Verification incomplete",
         });
-        return;
-      }
-
-      if (signUp.status === "complete") {
-        await completeSignUp();
-        return;
       }
     } catch (err: any) {
       Toast.show({
         type: "error",
         text1: "Failed to Verify",
-        text2: err?.longMessage ?? err?.message ?? "Invalid code",
+        text2: err?.errors?.[0]?.message ?? "Invalid code",
       });
     } finally {
       setLoading(false);
@@ -139,7 +103,6 @@ export default function SignUpScreen() {
       className="flex-1 bg-white justify-center"
       style={{ padding: 28 }}
     >
-      <View nativeID="clerk-captcha" />
       {!pendingVerification ? (
         <>
           <TouchableOpacity

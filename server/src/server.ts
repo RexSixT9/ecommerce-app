@@ -8,10 +8,12 @@ import { clerkWebhook } from "./controllers/webhooks.js";
 const app = express();
 
 app.use(cors());
-app.use(express.json());
 app.use(clerkMiddleware());
 
-app.use("/api/webhooks", express.raw({ type: "application/json" }), clerkWebhook);
+// Webhooks must receive the raw request body before any JSON parser runs.
+app.post("/api/webhooks", express.raw({ type: "application/json" }), clerkWebhook);
+
+app.use(express.json());
 
 app.get("/", async (_req: Request, res: Response) => {
   try {

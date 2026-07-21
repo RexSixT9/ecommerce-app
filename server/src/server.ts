@@ -9,6 +9,10 @@ import connectDB from "./config/db.js";
 import { clerkMiddleware } from "@clerk/express";
 import { clerkWebhook } from "./controllers/webhook.controller.js";
 import { makeAdmin } from "./scripts/makeAdmin.js";
+import ProductRouter from "./routes/products.routes.js";
+import CartRouter from "./routes/cart.routes.js";
+import OrderRouter from "./routes/order.route.js";
+import AddressRouter from "./routes/address.routes.js";
 
 const app = express();
 
@@ -17,33 +21,32 @@ const PORT = process.env.PORT || 3000;
 // Connect to MongoDB
 await connectDB();
 
+// Webhook route for Clerk
 app.post(
   "/api/webhooks/clerk",
   express.raw({ type: "application/json" }),
   clerkWebhook,
 );
 
-/* ==========================
-    Middleware
-========================== */
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(clerkMiddleware());
 
-/* ==========================
-   Routes
-========================== */
+//  Routes
 app.get("/", (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: "Server is live!",
   });
 });
+app.use("/api/products", ProductRouter);
+app.use("/api/cart", CartRouter);
+app.use("/api/orders", OrderRouter);
+app.use("/api/addresses", AddressRouter);
 
-/* ==========================
-   404 Handler
-========================== */
+//  404 Handler
 app.use((_req: Request, res: Response) => {
   res.status(404).json({
     success: false,
@@ -52,18 +55,13 @@ app.use((_req: Request, res: Response) => {
 });
 
 //  Global Error Handler
-
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);
-
   res.status(500).json({
     success: false,
     message: "Internal Server Error",
   });
 });
-
-// Make the user with the email in ADMIN_EMAIL an admin
-await makeAdmin();
 
 //  Local Development Only
 if (process.env.VERCEL !== "1") {

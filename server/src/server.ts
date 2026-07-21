@@ -12,6 +12,7 @@ import ProductRouter from "./routes/products.routes.js";
 import CartRouter from "./routes/cart.routes.js";
 import OrderRouter from "./routes/order.route.js";
 import AddressRouter from "./routes/address.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use("/api/products", ProductRouter);
 app.use("/api/cart", CartRouter);
 app.use("/api/orders", OrderRouter);
 app.use("/api/addresses", AddressRouter);
+app.use("/api/admin", adminRoutes);
 
 //  404 Handler
 app.use((_req: Request, res: Response) => {

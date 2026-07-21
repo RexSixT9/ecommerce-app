@@ -15,12 +15,11 @@ export const makeAdmin = async () => {
       console.log(`No user found with email: ${email}`);
       return;
     }
-    if (user) {
-      await clerkClient.users.updateUserMetadata(user.clerkId as string, {
-        publicMetadata: { role: "admin" },
-      });
-      console.log(`User made admin: ${user.name}`);
-    }
+
+    await clerkClient.users.updateUserMetadata(user.clerkId as string, {
+      publicMetadata: { role: "admin" },
+    });
+    console.log(`User made admin: ${user.name}`);
   } catch (err: any) {
     console.error("Error making user admin:", err);
   }

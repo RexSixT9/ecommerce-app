@@ -38,6 +38,23 @@ const productSchema = new Schema<IProduct>(
       type: Boolean,
       default: false,
     },
+    ratings: {
+      average: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5,
+      },
+      count: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+    },
+    comparePrice: {
+      type: Number,
+      min: 0,
+    },
   },
   { timestamps: true },
 );

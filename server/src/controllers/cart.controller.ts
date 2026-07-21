@@ -155,14 +155,20 @@ export const removeCartItem = async (req: Request, res: Response) => {
     const { size } = req.body;
 
     const cart = await Cart.findOne({ user: req.user._id });
-    if (!cart || !size) {
+    if (!cart) {
       return res
         .status(404)
         .json({ success: false, message: "Cart not found for user" });
     }
 
+    const matchesSize = size !== undefined && size !== null && size !== "";
+
     cart.items = cart.items.filter(
-      (item) => !(item.product.toString() === productId && item.size === size)
+      (item) =>
+        !(
+          item.product.toString() === productId &&
+          (matchesSize ? item.size === size : item.size === undefined)
+        ),
     );
 
     cart.calculateTotal();

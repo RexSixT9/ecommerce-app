@@ -26,6 +26,15 @@ export const getAddresses = async (req: Request, res: Response) => {
 export const createAddress = async (req: Request, res: Response) => {
   try {
     const { street, city, state, zipCode, country, isDefault, type } = req.body;
+    const validAddressTypes = ["Home", "Work", "Other"];
+
+    if (type && !validAddressTypes.includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid address type",
+      });
+    }
+
     if (isDefault) {
       await Address.updateMany({ user: req.user._id }, { isDefault: false });
     }
@@ -57,6 +66,14 @@ export const updateAddress = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { street, city, state, zipCode, country, isDefault, type } = req.body;
+    const validAddressTypes = ["Home", "Work", "Other"];
+
+    if (type && !validAddressTypes.includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid address type",
+      });
+    }
 
     let addressItem = await Address.findById(id);
     if (!addressItem) {

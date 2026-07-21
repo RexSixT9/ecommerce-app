@@ -8,7 +8,6 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import { clerkMiddleware } from "@clerk/express";
 import { clerkWebhook } from "./controllers/webhook.controller.js";
-import { makeAdmin } from "./scripts/makeAdmin.js";
 import ProductRouter from "./routes/products.routes.js";
 import CartRouter from "./routes/cart.routes.js";
 import OrderRouter from "./routes/order.route.js";

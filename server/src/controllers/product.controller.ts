@@ -21,7 +21,7 @@ export const getProducts = async (req: Request, res: Response) => {
         total,
         page: Number(page),
         limit: Number(limit),
-        Pages: Math.ceil(total / Number(limit)),
+        pages: Math.ceil(total / Number(limit)),
       },
     });
   } catch (error: any) {
@@ -56,8 +56,7 @@ export const createProduct = async (req: Request, res: Response) => {
     if (req.files && (req.files as any).length > 0) {
       const uploadPromises = (req.files as any).map((file: any) => {
         return new Promise((resolve, reject) => {
-          const uploadStream = cloudinaryConfig.uploader.upload(
-            file.path,
+          const uploadStream = cloudinaryConfig.uploader.upload_stream(
             { folder: "ecom/products" },
             (error, result) => {
               if (error) {
@@ -86,9 +85,27 @@ export const createProduct = async (req: Request, res: Response) => {
     }
 
     if (!Array.isArray(sizes)) sizes = [sizes];
+    const {
+      name,
+      description,
+      price,
+      category,
+      comparePrice,
+      stock,
+      isActive,
+      isFeatured,
+    } = req.body;
+
     const productData = {
-      ...req.body,
-      images: images,
+      name,
+      description,
+      price,
+      category,
+      comparePrice,
+      stock,
+      isActive,
+      isFeatured,
+      images,
       sizes,
     };
 
@@ -124,8 +141,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     if (req.files && (req.files as any).length > 0) {
       const uploadPromises = (req.files as any).map((file: any) => {
         return new Promise((resolve, reject) => {
-          const uploadStream = cloudinaryConfig.uploader.upload(
-            file.path,
+          const uploadStream = cloudinaryConfig.uploader.upload_stream(
             { folder: "ecom/products" },
             (error, result) => {
               if (error) {
@@ -142,7 +158,28 @@ export const updateProduct = async (req: Request, res: Response) => {
       images = [...images, ...newImages];
     }
 
-    const updates = { ...req.body };
+    const {
+      name,
+      description,
+      price,
+      category,
+      comparePrice,
+      stock,
+      isActive,
+      isFeatured,
+    } = req.body;
+
+    const updates: Record<string, any> = {
+      name,
+      description,
+      price,
+      category,
+      comparePrice,
+      stock,
+      isActive,
+      isFeatured,
+    };
+
     if (req.body.sizes) {
       let sizes = req.body.sizes;
       if (typeof sizes === "string") {
@@ -165,8 +202,6 @@ export const updateProduct = async (req: Request, res: Response) => {
     ) {
       updates.images = images;
     }
-
-    delete updates.existingImages;
 
     const product = await Product.findByIdAndUpdate(req.params.id, updates, {
       new: true,
@@ -198,7 +233,9 @@ export const deleteProduct = async (req: Request, res: Response) => {
     if (product.images && product.images.length > 0) {
       const deletePromises = product.images.map((imageUrl) => {
         return new Promise((resolve, reject) => {
-          const publicIdMatch = imageUrl.match(/\/v\d+\/(.+)\.[a-zA-Z]+$/);
+          const publicIdMatch = imageUrl.match(
+            /\/upload\/(?:.*\/)?v\d+\/(.+)\.[a-zA-Z0-9]+$/,
+          );
           const publicId = publicIdMatch ? publicIdMatch[1] : null;
           if (publicId) {
             cloudinaryConfig.uploader.destroy(publicId, (error, result) => {
@@ -215,8 +252,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
       });
       await Promise.all(deletePromises);
     }
-
-    await Product.findByIdAndDelete(req.params.id);
 
     res.json({ success: true, message: "Product deleted successfully" });
   } catch (error: any) {

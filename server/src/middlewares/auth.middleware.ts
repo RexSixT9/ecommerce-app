@@ -15,6 +15,10 @@ export const protect = async (
     let user = await User.findOne({ clerkId: userId }).select("-password");
     req.user = user;
 
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
     next();
   } catch (err) {
     console.error("Error in auth middleware:", err);

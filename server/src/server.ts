@@ -37,9 +37,18 @@ app.use(clerkMiddleware());
 
 //  Routes
 app.get("/", (_req: Request, res: Response) => {
-  res.status(200).json({
-    success: true,
-    message: "Server is live!",
+  return res.status(200).json({
+    status: "ok",
+    message: "Welcome to the Root Route of the E-commerce API",
+    timestamp: new Date().toISOString(),
+  });
+});
+app.get("/health", (_req: Request, res: Response) => {
+  return res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    version: "1.0.0",
   });
 });
 app.use("/api/products", ProductRouter);

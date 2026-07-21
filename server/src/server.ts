@@ -8,6 +8,7 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import { clerkMiddleware } from "@clerk/express";
 import { clerkWebhook } from "./controllers/webhook.controller.js";
+import { makeAdmin } from "./scripts/makeAdmin.js";
 
 const app = express();
 
@@ -50,9 +51,8 @@ app.use((_req: Request, res: Response) => {
   });
 });
 
-/* ==========================
-   Global Error Handler
-========================== */
+//  Global Error Handler
+
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);
 
@@ -62,9 +62,10 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-/* ==========================
-   Local Development Only
-========================== */
+// Make the user with the email in ADMIN_EMAIL an admin
+await makeAdmin();
+
+//  Local Development Only
 if (process.env.VERCEL !== "1") {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);

@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import { Order } from "../models/order.model.js";
 import { Cart } from "../models/cart.model.js";
 import Product from "../models/product.model.js";
+import { randomUUID } from "crypto";
+
+const buildOrderNumber = () => `ORD-${Date.now()}-${randomUUID().slice(0, 8)}`;
 
 // Get User Orders
 // GET /api/orders
@@ -91,7 +94,7 @@ export const createOrder = async (req: Request, res: Response) => {
 
     const order = await Order.create({
       user: req.user._id,
-      orderNumber: `ORD-${Date.now()}`,
+      orderNumber: buildOrderNumber(),
       items: orderItems,
       totalAmount: total,
       shippingAddress,
@@ -157,7 +160,7 @@ export const getAllOrders = async (req: Request, res: Response) => {
       .populate("user", "name email")
       .populate("items.product", "name images")
       .sort({ createdAt: -1 })
-      .skip((Number(page) - 1) * Number(limit));
+      .skip((Number(page) - 1) * Number(limit)).limit(Number(limit));
 
     res.json({
       success: true,

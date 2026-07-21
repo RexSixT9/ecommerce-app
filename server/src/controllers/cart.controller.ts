@@ -121,7 +121,13 @@ export const updateCartItem = async (req: Request, res: Response) => {
       );
     } else {
       const product = await Product.findById(productId);
-      if (product!.stock < quantity) {
+      if (!product) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Product not found" });
+      }
+
+      if (product.stock < quantity) {
         return res
           .status(400)
           .json({ success: false, message: "Not enough stock available" });

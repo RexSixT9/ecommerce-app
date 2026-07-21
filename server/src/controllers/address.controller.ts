@@ -105,16 +105,23 @@ export const updateAddress = async (req: Request, res: Response) => {
 export const deleteAddress = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const deletedAddress = await Address.findOneAndDelete({
-      _id: id,
-      user: req.user._id,
-    });
-    if (!deletedAddress) {
+    const address = await Address.findById(id);
+    if (!address) {
       return res.status(404).json({
         success: false,
         message: "Address not found",
       });
     }
+
+    if (address.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized to delete this address",
+      });
+    }
+
+    await address.deleteOne();
+
     res.status(200).json({
       success: true,
       message: "Address deleted successfully",

@@ -10,6 +10,7 @@ import { clerkMiddleware } from "@clerk/express";
 import { clerkWebhook } from "./controllers/webhook.controller.js";
 import ProductRouter from "./routes/products.routes.js";
 import CartRouter from "./routes/cart.routes.js";
+import WishlistRouter from "./routes/wishlist.routes.js";
 import OrderRouter from "./routes/order.route.js";
 import AddressRouter from "./routes/address.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
@@ -43,6 +44,7 @@ app.get("/", (_req: Request, res: Response) => {
 });
 app.use("/api/products", ProductRouter);
 app.use("/api/cart", CartRouter);
+app.use("/api/wishlist", WishlistRouter);
 app.use("/api/orders", OrderRouter);
 app.use("/api/addresses", AddressRouter);
 app.use("/api/admin", adminRoutes);

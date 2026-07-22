@@ -10,14 +10,16 @@ import { useCart } from "src/context/CartContext";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Address } from "src/constants/types";
-import { dummyAddress } from "assets/assets";
 import Toast from "react-native-toast-message";
 import { COLORS } from "src/constants";
 import Header from "src/components/Header";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
+import { useAuth } from "@clerk/expo";
+import api from "src/constants/api";
 
 export default function Checkout() {
-  const { cartTotal } = useCart();
+  const { getToken } = useAuth();
+  const { cartTotal, clearCart } = useCart();
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
@@ -31,14 +33,34 @@ export default function Checkout() {
   const total = cartTotal + shipping + tax;
 
   const fetchAddress = async () => {
-    const addressList = dummyAddress; // Replace with actual API call to fetch addresses
-    if (addressList.length > 0) {
-      const defaultAddress = addressList.find(
-        (address: any) => address.isDefault || addressList[0],
-      );
-      setSelectedAddress(defaultAddress as Address);
+    try {
+      setPageLoading(true);
+      const token = await getToken();
+      const { data } = await api.get("/addresses", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const addresses: Address[] = data.data;
+      if (addresses.length > 0) {
+        const def = addresses.find((address) => address.isDefault);
+        if (def) {
+          setSelectedAddress(def);
+        } else {
+          setSelectedAddress(addresses[0]);
+        }
+      }
+    } catch (error: any) {
+      console.error("Error fetching addresses:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error fetching addresses",
+        text2: error.message || "An unexpected error occurred.",
+      });
+    } finally {
+      setPageLoading(false);
     }
-    setPageLoading(false);
   };
 
   const handlePlaceOrder = async () => {
@@ -51,14 +73,45 @@ export default function Checkout() {
       return;
     }
     if (paymentMethod === "stripe") {
-      Toast.show({
+      return Toast.show({
         type: "info",
         text1: "Stripe Payment",
         text2: "Stripe payment integration is not implemented yet.",
       });
     }
 
-    router.replace("/orders");
+    setLoading(true);
+    try {
+      const payload = {
+        shippingAddress: selectedAddress,
+        notes: "Placed via mobile app",
+        paymentMethod: "cash",
+      };
+      const token = await getToken();
+      const { data } = await api.post("/orders", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (data.success) {
+        await clearCart();
+        Toast.show({
+          type: "success",
+          text1: "Order Placed",
+          text2: "Your order has been placed successfully.",
+        });
+        router.replace("/orders");
+      }
+    } catch (error: any) {
+      console.error("Error placing order:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error placing order",
+        text2: error.message || "An unexpected error occurred.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

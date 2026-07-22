@@ -6,16 +6,19 @@ import {
   View,
   ActivityIndicator,
   RefreshControl,
-  Alert,
   Modal,
   TouchableWithoutFeedback,
   FlatList,
 } from "react-native";
 import { COLORS, getStatusColor } from "@/constants";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
-import { dummyOrders, dummyUser } from "@/assets/assets";
+import { useAuth } from "@clerk/expo";
+import api from "src/constants/api";
+import Toast from "react-native-toast-message";
 
 export default function AdminOrders() {
+  const { getToken } = useAuth();
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [orders, setOrders] = useState([]);
@@ -34,14 +37,27 @@ export default function AdminOrders() {
   ];
 
   const fetchOrders = async () => {
-    setOrders(
-      dummyOrders.map((order: any) => ({
-        ...order,
-        user: dummyUser,
-      })) as any,
-    );
-    setLoading(false);
-    setRefreshing(false);
+    try {
+      const token = await getToken();
+      const { data } = await api.get("/orders/admin/all", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (data.success) {
+        setOrders(data.data);
+      }
+    } catch (error: any) {
+      console.error("Failed to fetch orders:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to Fetch Orders",
+        text2: "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -60,15 +76,44 @@ export default function AdminOrders() {
 
   const updateStatus = async (newStatus: string) => {
     if (!selectedOrder) return;
-    setOrders(
-      orders.map((order: any) =>
-        order._id === selectedOrder._id
-          ? { ...order, orderStatus: newStatus }
-          : order,
-      ) as any,
-    );
-    setStatusModalVisible(false);
-    setUpdating(false);
+
+    try {
+      const token = await getToken();
+      const { data } = await api.put(
+        `/orders/${selectedOrder._id}/status`,
+        { orderStatus: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (data.success) {
+        Toast.show({
+          type: "success",
+          text1: "Order Status Updated",
+          text2: `Order status has been updated to ${newStatus}`,
+        });
+        setStatusModalVisible(false);
+        fetchOrders();
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Failed to Update Status",
+          text2: "Something went wrong",
+        });
+      }
+    } catch (error: any) {
+      console.error("Failed to update order status:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to Update Status",
+        text2: "Something went wrong",
+      });
+    } finally {
+      setUpdating(false);
+    }
   };
 
   if (loading && !refreshing) {

@@ -3,6 +3,7 @@ import { HeaderProps } from "@/constants/types";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { COLORS } from "@/constants";
 import { useRouter } from "expo-router";
+import { useCart } from "src/context/CartContext";
 
 export default function Header({
   title,
@@ -13,6 +14,7 @@ export default function Header({
   showLogo,
 }: HeaderProps) {
   const router = useRouter();
+  const {itemCount} = useCart();
 
   return (
     <View className="relative flex-row items-center px-4 py-3 bg-white">
@@ -65,7 +67,7 @@ export default function Header({
             <View className="relative">
               <Ionicons name="bag-outline" size={24} color={COLORS.primary} />
               <View className="absolute -top-2 -right-2 bg-accent rounded-full w-4 h-4 items-center justify-center z-10">
-                <Text className="text-[10px] font-bold text-white">5</Text>
+                <Text className="text-[10px] font-bold text-white">{itemCount}</Text>
               </View>
             </View>
           </TouchableOpacity>

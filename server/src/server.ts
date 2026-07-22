@@ -75,6 +75,9 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
+// await makeAdmin(); // Ensure this is called after the database connection is established
+// await seedProducts(process.env.MONGODB_URI as string); // Ensure this is called after the database connection is established
+
 //  Local Development Only
 if (process.env.VERCEL !== "1") {
   app.listen(PORT, () => {

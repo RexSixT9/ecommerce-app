@@ -1,14 +1,32 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/Header";
 import { useWishlist } from "src/context/WishlistContext";
 import { useRouter } from "expo-router";
 import ProductCard from "src/components/ProductCard";
+import { COLORS } from "@/constants";
 
 export default function Favorites() {
-  const { wishlist } = useWishlist();
+  const { wishlist, loading } = useWishlist();
   const router = useRouter();
+
+  if (loading && wishlist.length === 0) {
+    return (
+      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+        <Header title="Favorites" showMenu showCart />
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>

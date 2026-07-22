@@ -4,6 +4,7 @@ import { CartProvider } from "src/context/CartContext";
 import { WishlistProvider } from "src/context/WishlistContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
+import { toastConfig } from "@/config/toast";
 import { ClerkProvider } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 
@@ -20,7 +21,7 @@ export default function RootLayout() {
         <CartProvider>
           <WishlistProvider>
             <Stack screenOptions={{ headerShown: false }} />
-            <Toast position="top" />
+            <Toast config={toastConfig} position="top" />
           </WishlistProvider>
         </CartProvider>
       </ClerkProvider>

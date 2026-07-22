@@ -8,6 +8,7 @@
     "@react-native-vector-icons/evil-icons": "^13.1.2",
     "@react-native-vector-icons/fontawesome-free-solid": "^1.1.2",
     "@react-native-vector-icons/ionicons": "^13.1.2",
+    "axios": "^1.18.1",
     "babel-preset-expo": "~57.0.0",
     "expo": "~57.0.6",
     "expo-constants": "~57.0.6",

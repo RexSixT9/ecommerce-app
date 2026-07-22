@@ -19,6 +19,7 @@ import { router } from "expo-router";
 import { Product } from "@/constants/types";
 import ProductCard from "@/components/ProductCard";
 import api from "src/constants/api";
+import Toast from "react-native-toast-message";
 
 export default function Home() {
   const { width } = useWindowDimensions();
@@ -29,26 +30,33 @@ export default function Home() {
 
   const categories = [{ id: "all", name: "All", icon: "grid" }, ...CATEGORIES];
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (signal?: AbortSignal) => {
     try {
       const { data } = await api.get("/products", {
         params: {
           limit: 4,
         },
+        signal,
       });
       if (data.success) {
         setProducts(data.data);
       }
     } catch (error: any) {
       console.error("Failed to fetch products:", error);
-      setLoading(false);
+      Toast.show({
+        type: "error",
+        text1: "Failed to Load Products",
+        text2: "Something went wrong. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    const abortController = new AbortController();
+    fetchProducts(abortController.signal);
+    return () => abortController.abort();
   }, []);
 
   return (

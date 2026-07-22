@@ -116,7 +116,7 @@ export default function EditProduct() {
   };
 
   const handleSubmit = async () => {
-    if (!name || !price || sizes.length < 1) {
+    if (!name || !price || !description || !category || sizes.length < 1) {
       Toast.show({
         type: "error",
         text1: "Missing Fields",
@@ -164,7 +164,6 @@ export default function EditProduct() {
       const { data } = await api.put(`/products/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 

@@ -27,15 +27,15 @@ export default function ProductDetails() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const { addToCart, cartItems, itemCount } = useCart();
+  const { addToCart, itemCount } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
 
-  const fetchProductDetails = async () => {
+  const fetchProductDetails = async (signal?: AbortSignal) => {
     try {
-      const { data } = await api.get(`/products/${id}`);
+      const { data } = await api.get(`/products/${id}`, { signal });
       if (data.success) {
         setProduct(data.data);
       } else {
@@ -55,7 +55,9 @@ export default function ProductDetails() {
   };
 
   useEffect(() => {
-    fetchProductDetails();
+    const abortController = new AbortController();
+    fetchProductDetails(abortController.signal);
+    return () => abortController.abort();
   }, [id]);
 
   if (loading) {
@@ -86,11 +88,6 @@ export default function ProductDetails() {
       return;
     }
     addToCart(product, selectedSize || "");
-    Toast.show({
-      type: "success",
-      text1: "Added to Cart",
-      text2: `${product.name} has been added to your cart.`,
-    });
   };
 
   return (

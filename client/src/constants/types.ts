@@ -42,14 +42,8 @@ export type ProductCardProps = {
     product: Product;
 };
 
-export interface CartItem {
-    product: Product;
-    quantity: number;
-    size: string;
-}
-
 export type CartItemProps = {
-    item: { id: string; product: { name: string; price: number; images: string[] }; quantity: number; size: string };
+    item: { id: string; product: Product; quantity: number; size: string };
     onRemove?: () => void;
     onUpdateQuantity?: (newQty: number) => void;
 };
@@ -82,6 +76,7 @@ export interface Address {
 }
 
 export interface OrderItem {
+    _id?: string;
     product: Product | string;
     name: string;
     quantity: number;

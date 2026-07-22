@@ -14,6 +14,7 @@ import Ionicons from "@react-native-vector-icons/ionicons";
 import { COLORS } from "src/constants";
 import ProductCard from "src/components/ProductCard";
 import api from "src/constants/api";
+import Toast from "react-native-toast-message";
 
 export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -22,7 +23,7 @@ export default function Shop() {
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
-  const fetchProducts = async (page: number = 1) => {
+  const fetchProducts = async (page: number = 1, signal?: AbortSignal) => {
     if (page === 1) {
       setLoading(true);
     } else {
@@ -36,6 +37,7 @@ export default function Shop() {
       };
       const { data } = await api.get(`/products`, {
         params: queryParams,
+        signal,
       });
       const newProducts = data.data as Product[];
 
@@ -48,6 +50,11 @@ export default function Shop() {
       setPage(page);
     } catch (error) {
       console.error("Error fetching products:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to Load Products",
+        text2: "Something went wrong. Please try again.",
+      });
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -61,7 +68,9 @@ export default function Shop() {
   };
 
   useEffect(() => {
-    fetchProducts(1);
+    const abortController = new AbortController();
+    fetchProducts(1, abortController.signal);
+    return () => abortController.abort();
   }, []);
 
   return (
@@ -106,6 +115,10 @@ export default function Shop() {
           columnWrapperStyle={{ justifyContent: "space-between" }}
           onEndReached={loadMoreProducts}
           onEndReachedThreshold={0.5}
+          removeClippedSubviews
+          windowSize={10}
+          maxToRenderPerBatch={10}
+          initialNumToRender={6}
           ListFooterComponent={() =>
             loadingMore ? (
               <View className="py-4">
@@ -122,10 +135,8 @@ export default function Shop() {
               </View>
             )
           }
-          renderItem={({ item }) => (
-            <ProductCard key={item._id} product={item} />
-          )}
-        ></FlatList>
+          renderItem={({ item }) => <ProductCard product={item} />}
+        />
       )}
     </SafeAreaView>
   );

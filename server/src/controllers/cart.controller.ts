@@ -162,6 +162,7 @@ export const removeCartItem = async (req: Request, res: Response) => {
     }
 
     const matchesSize = size !== undefined && size !== null && size !== "";
+    const initialLength = cart.items.length;
 
     cart.items = cart.items.filter(
       (item) =>
@@ -170,6 +171,12 @@ export const removeCartItem = async (req: Request, res: Response) => {
           (matchesSize ? item.size === size : item.size === undefined)
         ),
     );
+
+    if (cart.items.length === initialLength) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Item not found in cart" });
+    }
 
     cart.calculateTotal();
     await cart.save();

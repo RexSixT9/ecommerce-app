@@ -34,6 +34,7 @@ export interface IOrderItem {
     quantity: number;
     price: number;
     size?: string;
+    image?: string;
 }
 
 export interface IOrder extends Document {

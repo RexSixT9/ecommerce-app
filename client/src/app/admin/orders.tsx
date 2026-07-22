@@ -15,17 +15,18 @@ import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { useAuth } from "@clerk/expo";
 import api from "src/constants/api";
 import Toast from "react-native-toast-message";
+import type { Order } from "@/constants/types";
 
 export default function AdminOrders() {
   const { getToken } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   // Status Modal State
   const [statusModalVisible, setStatusModalVisible] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updating, setUpdating] = useState(false);
 
   const STATUSES = [
@@ -36,13 +37,14 @@ export default function AdminOrders() {
     "cancelled",
   ];
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (signal?: AbortSignal) => {
     try {
       const token = await getToken();
       const { data } = await api.get("/orders/admin/all", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       });
       if (data.success) {
         setOrders(data.data);
@@ -61,7 +63,9 @@ export default function AdminOrders() {
   };
 
   useEffect(() => {
-    fetchOrders();
+    const abortController = new AbortController();
+    fetchOrders(abortController.signal);
+    return () => abortController.abort();
   }, []);
 
   const onRefresh = () => {
@@ -69,7 +73,7 @@ export default function AdminOrders() {
     fetchOrders();
   };
 
-  const openStatusModal = (order: any) => {
+  const openStatusModal = (order: Order) => {
     setSelectedOrder(order);
     setStatusModalVisible(true);
   };
@@ -137,7 +141,7 @@ export default function AdminOrders() {
             <Text className="text-secondary">No orders found</Text>
           </View>
         ) : (
-          orders.map((order: any) => (
+          orders.map((order) => (
             <View
               key={order._id}
               className="bg-white p-4 rounded-xl shadow-sm mb-4 border border-gray-100"
@@ -156,14 +160,14 @@ export default function AdminOrders() {
                   CUSTOMER
                 </Text>
                 <Text className="text-primary font-medium">
-                  {order.user?.name || "Unknown User"}
+                  {typeof order.user === "object" && order.user ? order.user.name : "Unknown User"}
                 </Text>
                 <Text className="text-secondary text-xs">
-                  {order.user?.email || "No email"}
+                  {typeof order.user === "object" && order.user ? order.user.email : "No email"}
                 </Text>
-                {!order.user && (
+                {typeof order.user !== "object" && (
                   <Text className="text-xs text-gray-400 mt-1">
-                    ID: {order.user?._id || "N/A"}
+                    ID: {order.user || "N/A"}
                   </Text>
                 )}
               </View>
@@ -186,13 +190,13 @@ export default function AdminOrders() {
                 <Text className="text-xs text-secondary font-bold mb-2">
                   ITEMS
                 </Text>
-                {order.items.map((item: any) => (
+                {order.items.map((item) => (
                   <View
                     key={item._id}
                     className="flex-row justify-between mb-1"
                   >
                     <Text className="text-secondary text-xs flex-1">
-                      {item.quantity}x {item.product?.name || item.name}
+                      {item.quantity}x {typeof item.product === "object" && item.product ? item.product.name : item.name}
                       {item.size && (
                         <Text className="text-gray-400">
                           {" "}

@@ -9,6 +9,7 @@ import {
 import { COLORS, getStatusColor } from "@/constants";
 import { useAuth } from "@clerk/expo/";
 import api from "src/constants/api";
+import type { Order } from "@/constants/types";
 
 export default function AdminDashboard() {
   const { getToken } = useAuth();
@@ -19,16 +20,17 @@ export default function AdminDashboard() {
     totalProducts: 0,
     totalOrders: 0,
     totalRevenue: 0,
-    recentOrders: [],
+    recentOrders: [] as Order[],
   });
 
-  const fetchStats = async () => {
+  const fetchStats = async (signal?: AbortSignal) => {
     try {
       const token = await getToken();
       const { data } = await api.get("/admin/stats", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       });
       if (data.success) {
         setStats(data.data);
@@ -42,7 +44,9 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    fetchStats();
+    const abortController = new AbortController();
+    fetchStats(abortController.signal);
+    return () => abortController.abort();
   }, []);
 
   const onRefresh = () => {
@@ -95,7 +99,7 @@ export default function AdminDashboard() {
             <Text className="text-secondary">No recent orders</Text>
           </View>
         ) : (
-          stats.recentOrders.map((order: any) => (
+          stats.recentOrders.map((order) => (
             <View
               key={order._id}
               className="bg-white p-5 rounded-2xl border border-gray-100 mb-3"
@@ -105,7 +109,7 @@ export default function AdminDashboard() {
                   <Text className="font-bold text-primary text-base">
                     Total Products :{" "}
                     {order.items.reduce(
-                      (acc: number, item: any) => acc + item.quantity,
+                      (acc: number, item) => acc + item.quantity,
                       0,
                     )}
                   </Text>
@@ -122,7 +126,7 @@ export default function AdminDashboard() {
                 </View>
               </View>
               <View className="pb-2">
-                {order.items.map((item: any) => (
+                {order.items.map((item) => (
                   <Text key={item._id} className="text-secondary text-xs mt-1">
                     {item.name} x {item.quantity}
                   </Text>
@@ -135,11 +139,11 @@ export default function AdminDashboard() {
                 <View className="flex-row items-center">
                   <View className="w-8 h-8 rounded-full bg-gray-100 items-center justify-center mr-2">
                     <Text className="text-primary font-bold text-xs">
-                      {(order.user?.name || "?").charAt(0).toUpperCase()}
+                      {(typeof order.user === "object" && order.user?.name ? order.user.name : "?").charAt(0).toUpperCase()}
                     </Text>
                   </View>
                   <Text className="text-secondary text-sm">
-                    {order.user?.name || "Unknown User"}
+                    {typeof order.user === "object" && order.user?.name ? order.user.name : "Unknown User"}
                   </Text>
                 </View>
                 <Text className="text-primary font-bold text-lg">

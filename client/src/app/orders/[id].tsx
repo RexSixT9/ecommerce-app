@@ -15,7 +15,7 @@ export default function OrderDetails() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       const token = await getToken();
@@ -23,6 +23,7 @@ export default function OrderDetails() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       });
       setOrder(data.data);
     } catch (error: any) {
@@ -34,7 +35,9 @@ export default function OrderDetails() {
   };
 
   useEffect(() => {
-    fetchOrderDetails();
+    const abortController = new AbortController();
+    fetchOrderDetails(abortController.signal);
+    return () => abortController.abort();
   }, [id]);
 
   if (loading) {
@@ -127,8 +130,8 @@ export default function OrderDetails() {
         {/* Items */}
         <View className="bg-white p-4 rounded-xl mb-4 border border-gray-100">
           <Text className="text-lg font-bold text-primary mb-4">Products</Text>
-          {order.items.map((item: any, index: number) => {
-            const productData = item.product as Product;
+          {order.items.map((item, index: number) => {
+            const productData = typeof item.product === "string" ? null : (item.product as Product);
             const image = productData?.images?.[0];
 
             return (

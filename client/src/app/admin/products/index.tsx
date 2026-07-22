@@ -15,6 +15,7 @@ import { COLORS } from "@/constants";
 import { useAuth } from "@clerk/expo";
 import api from "src/constants/api";
 import Toast from "react-native-toast-message";
+import type { Product } from "@/constants/types";
 
 export default function AdminProducts() {
   const { getToken } = useAuth();
@@ -22,18 +23,20 @@ export default function AdminProducts() {
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (signal?: AbortSignal) => {
     try {
       const token = await getToken();
       const { data } = await api.get("/products", {
         params: {
           limit: 100,
+          showAll: "true",
         },
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       });
       if (data.success) {
         setProducts(data.data);
@@ -52,7 +55,9 @@ export default function AdminProducts() {
   };
 
   useEffect(() => {
-    fetchProducts();
+    const abortController = new AbortController();
+    fetchProducts(abortController.signal);
+    return () => abortController.abort();
   }, []);
 
   const onRefresh = () => {
@@ -135,7 +140,7 @@ export default function AdminProducts() {
             <Text className="text-secondary">No products found</Text>
           </View>
         ) : (
-          products.map((product: any) => (
+          products.map((product) => (
             <View
               key={product._id}
               className="bg-white p-3 rounded-lg border border-gray-100 mb-3 flex-row items-center"
@@ -159,13 +164,13 @@ export default function AdminProducts() {
                   {product.name}
                 </Text>
                 <Text className="text-secondary text-xs mb-1" numberOfLines={1}>
-                  Category : {product.category || "Others"}
+                  Category : {typeof product.category === "string" ? product.category : product.category?.name || "Others"}
                 </Text>
                 <Text className="text-secondary text-xs mb-1" numberOfLines={1}>
                   Stock : {product.stock}
                 </Text>
                 <Text className="text-secondary text-xs mb-1" numberOfLines={1}>
-                  Sizes : {product.sizes.join(", ")}
+                  Sizes : {product.sizes?.join(", ") || "-"}
                 </Text>
                 <Text className="text-primary font-bold">
                   ${product.price.toFixed(2)}

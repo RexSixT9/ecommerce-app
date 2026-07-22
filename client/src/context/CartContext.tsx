@@ -130,15 +130,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       const token = await getToken();
       const { data } = await api.delete(
-        `/cart/item/${productId}?size=${size}`,
+        `/cart/item/${productId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          data: {
-            productId,
-            size,
-          },
+          data: { size },
         },
       );
       if (data.success) {

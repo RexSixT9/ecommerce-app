@@ -32,7 +32,7 @@ export default function Checkout() {
   const tax = 0.1 * cartTotal;
   const total = cartTotal + shipping + tax;
 
-  const fetchAddress = async () => {
+  const fetchAddress = async (signal?: AbortSignal) => {
     try {
       setPageLoading(true);
       const token = await getToken();
@@ -40,6 +40,7 @@ export default function Checkout() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       });
 
       const addresses: Address[] = data.data;
@@ -83,7 +84,13 @@ export default function Checkout() {
     setLoading(true);
     try {
       const payload = {
-        shippingAddress: selectedAddress,
+        shippingAddress: {
+          street: selectedAddress.street,
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          zipCode: selectedAddress.zipCode,
+          country: selectedAddress.country,
+        },
         notes: "Placed via mobile app",
         paymentMethod: "cash",
       };
@@ -115,7 +122,9 @@ export default function Checkout() {
   };
 
   useEffect(() => {
-    fetchAddress();
+    const abortController = new AbortController();
+    fetchAddress(abortController.signal);
+    return () => abortController.abort();
   }, []);
 
   if (pageLoading) {

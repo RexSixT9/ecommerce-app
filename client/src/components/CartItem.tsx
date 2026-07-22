@@ -4,7 +4,7 @@ import { CartItemProps } from "src/constants/types";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { COLORS } from "src/constants";
 
-export default function CartItem({
+const CartItem = React.memo(function CartItem({
   item,
   onRemove,
   onUpdateQuantity,
@@ -67,4 +67,6 @@ export default function CartItem({
       </View>
     </View>
   );
-}
+});
+
+export default CartItem;

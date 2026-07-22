@@ -5,7 +5,7 @@ import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/Header";
 import { COLORS, getStatusColor } from "@/constants";
-import type { Order } from "@/constants/types";
+import type { Order, Product } from "@/constants/types";
 import {  formatDate } from "@/assets/assets";
 import { useAuth } from "@clerk/expo";
 import api from "src/constants/api";
@@ -16,7 +16,7 @@ export default function Orders() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchOrders = async () => {
+    const fetchOrders = async (signal?: AbortSignal) => {
         if (!isSignedIn) {
             setOrders([]);
             setLoading(false);
@@ -29,6 +29,7 @@ export default function Orders() {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
+                signal,
             });
             if (data.success && data.data) {
                 setOrders(data.data);
@@ -44,8 +45,10 @@ export default function Orders() {
     };
 
     useEffect(() => {
-        fetchOrders();
-    }, []);
+        const abortController = new AbortController();
+        fetchOrders(abortController.signal);
+        return () => abortController.abort();
+    }, [isSignedIn]);
 
     return (
         <SafeAreaView className="flex-1 bg-surface" edges={['top']}>
@@ -97,10 +100,11 @@ export default function Orders() {
 
                             {/* Product Images */}
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-3">
-                                {item.items.map((prod: any, idx) => {
-                                    const image = prod.product?.images?.[0];
+                                {item.items.map((prod, idx) => {
+                                    const productData = typeof prod.product === "string" ? null : (prod.product as Product);
+                                    const image = productData?.images?.[0];
                                     return (
-                                        <View key={prod._id ?? prod.product?._id ?? idx} className="mr-3 border border-gray-100 rounded-md p-1 bg-gray-50">
+                                        <View key={prod._id ?? productData?._id ?? idx} className="mr-3 border border-gray-100 rounded-md p-1 bg-gray-50">
                                             {image ? (
                                                 <Image
                                                     source={{ uri: image }}

@@ -53,11 +53,19 @@ export default function AddProduct() {
   };
 
   const handleSubmit = async () => {
-    if (!name || !price || !category || sizes.length < 1) {
+    if (!name || !price || !description || !category || sizes.length < 1) {
       Toast.show({
         type: "error",
         text1: "Missing Fields",
         text2: "Please fill in all required fields",
+      });
+      return;
+    }
+    if (images.length === 0) {
+      Toast.show({
+        type: "error",
+        text1: "Missing Images",
+        text2: "Please select at least one product image.",
       });
       return;
     }
@@ -93,7 +101,6 @@ export default function AddProduct() {
       const { data } = await api.post("/products", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -113,7 +120,7 @@ export default function AddProduct() {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "Failed to create product. Please try again.",
+        text2: error.response?.data?.message || "Failed to create product. Please try again.",
       });
     } finally {
       setSubmitting(false);

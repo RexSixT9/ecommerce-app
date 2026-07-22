@@ -40,10 +40,12 @@ export default function Addresses() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchAddresses();
+    const abortController = new AbortController();
+    fetchAddresses(abortController.signal);
+    return () => abortController.abort();
   }, []);
 
-  const fetchAddresses = async () => {
+  const fetchAddresses = async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       if (!isSignedIn) {
@@ -55,6 +57,7 @@ export default function Addresses() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       });
       if (data.success && data.data) {
         setAddresses(data.data);

@@ -6,8 +6,8 @@ import { cloudinaryConfig } from "../config/cloudinary.js";
 // GET /api/products?page=1&limit=10
 export const getProducts = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
-    const query: any = { isActive: true };
+    const { page = 1, limit = 10, showAll } = req.query;
+    const query: any = showAll === "true" ? {} : { isActive: true };
 
     const total = await Product.countDocuments(query);
     const products = await Product.find(query)
@@ -53,9 +53,9 @@ export const createProduct = async (req: Request, res: Response) => {
   try {
     let images: string[] = [];
 
-    if (req.files && (req.files as any).length > 0) {
-      const uploadPromises = (req.files as any).map((file: any) => {
-        return new Promise((resolve, reject) => {
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      const uploadPromises = req.files.map((file) => {
+        return new Promise<string>((resolve, reject) => {
           const uploadStream = cloudinaryConfig.uploader.upload_stream(
             { folder: "ecom/products" },
             (error, result) => {
@@ -69,7 +69,7 @@ export const createProduct = async (req: Request, res: Response) => {
           uploadStream.end(file.buffer);
         });
       });
-      images = (await Promise.all(uploadPromises)) as string[];
+      images = await Promise.all(uploadPromises);
     }
 
     let sizes = req.body.sizes || [];
@@ -138,9 +138,9 @@ export const updateProduct = async (req: Request, res: Response) => {
       }
     }
 
-    if (req.files && (req.files as any).length > 0) {
-      const uploadPromises = (req.files as any).map((file: any) => {
-        return new Promise((resolve, reject) => {
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      const uploadPromises = req.files.map((file) => {
+        return new Promise<string>((resolve, reject) => {
           const uploadStream = cloudinaryConfig.uploader.upload_stream(
             { folder: "ecom/products" },
             (error, result) => {
@@ -154,7 +154,7 @@ export const updateProduct = async (req: Request, res: Response) => {
           uploadStream.end(file.buffer);
         });
       });
-      const newImages = (await Promise.all(uploadPromises)) as string[];
+      const newImages = await Promise.all(uploadPromises);
       images = [...images, ...newImages];
     }
 
@@ -198,7 +198,7 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     if (
       req.body.existingImages ||
-      (req.files && (req.files as any).length > 0)
+      (req.files && Array.isArray(req.files) && req.files.length > 0)
     ) {
       updates.images = images;
     }

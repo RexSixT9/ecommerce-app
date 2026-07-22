@@ -16,7 +16,10 @@ const getOrCreateWishlist = async (userId: string) => {
 };
 
 const populateWishlist = (wishlist: any) =>
-  wishlist.populate("products", "name price images stock comparePrice isActive");
+  wishlist.populate(
+    "products",
+    "name description price images stock comparePrice isActive isFeatured ratings sizes category",
+  );
 
 // Get logged-in user's wishlist
 // GET /api/wishlist
@@ -110,18 +113,4 @@ export const removeFromWishlist = async (req: Request, res: Response) => {
   }
 };
 
-// Clear wishlist
-// DELETE /api/wishlist
-export const clearWishlist = async (req: Request, res: Response) => {
-  try {
-    const wishlist = await getOrCreateWishlist(req.user._id);
-    wishlist.products = [];
-    await wishlist.save();
 
-    res.json({ success: true, message: "Wishlist cleared successfully" });
-  } catch (err: any) {
-    res
-      .status(500)
-      .json({ success: false, message: "Error clearing wishlist" });
-  }
-};

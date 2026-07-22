@@ -12,12 +12,13 @@ import {
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/Header";
-import { BANNERS, dummyProducts } from "@/assets/assets";
+import { BANNERS } from "@/assets/assets";
 import { CATEGORIES } from "@/constants";
 import CategoryItem from "@/components/CategoryItem";
 import { router } from "expo-router";
 import { Product } from "@/constants/types";
 import ProductCard from "@/components/ProductCard";
+import api from "src/constants/api";
 
 export default function Home() {
   const { width } = useWindowDimensions();
@@ -29,8 +30,21 @@ export default function Home() {
   const categories = [{ id: "all", name: "All", icon: "grid" }, ...CATEGORIES];
 
   const fetchProducts = async () => {
-    setProducts(dummyProducts);
-    setLoading(false);
+    try {
+      const { data } = await api.get("/products", {
+        params: {
+          limit: 4,
+        },
+      });
+      if (data.success) {
+        setProducts(data.data);
+      }
+    } catch (error: any) {
+      console.error("Failed to fetch products:", error);
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -42,7 +56,6 @@ export default function Home() {
       <Header showMenu showCart showLogo title="Home" />
 
       <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
-        
         {/* Banners */}
         <View className="mt-4 -mx-4">
           <FlatList
@@ -126,7 +139,7 @@ export default function Home() {
                 isSelected={false}
                 onPress={() => {
                   router.push({
-                    pathname: `/cart`,
+                    pathname: `/shop`,
                     params: { category: item.id == "all" ? "" : item.id },
                   });
                 }}
@@ -173,7 +186,6 @@ export default function Home() {
             <Text className="text-white font-bold text-center">Subscribe</Text>
           </TouchableOpacity>
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );

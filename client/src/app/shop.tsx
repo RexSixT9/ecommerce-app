@@ -8,12 +8,12 @@ import {
 } from "react-native";
 import { useEffect, useState } from "react";
 import { Product } from "src/constants/types";
-import { dummyProducts } from "assets/assets";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "src/components/Header";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { COLORS } from "src/constants";
 import ProductCard from "src/components/ProductCard";
+import api from "src/constants/api";
 
 export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -30,15 +30,21 @@ export default function Shop() {
     }
 
     try {
-      const start = (page - 1) * 10;
-      const end = start + 10;
-      const newProducts = dummyProducts.slice(start, end);
+      const queryParams: any = {
+        limit: 10,
+        page: page,
+      };
+      const { data } = await api.get(`/products`, {
+        params: queryParams,
+      });
+      const newProducts = data.data as Product[];
+
       if (page === 1) {
         setProducts(newProducts);
       } else {
         setProducts((prevProducts) => [...prevProducts, ...newProducts]);
       }
-      setHasMore(end < dummyProducts.length);
+      setHasMore(data.pagination.page < data.pagination.pages);
       setPage(page);
     } catch (error) {
       console.error("Error fetching products:", error);

@@ -105,7 +105,7 @@ export const updateAddress = async (req: Request, res: Response) => {
         country,
         isDefault,
       },
-      { new: true },
+      { returnDocument: "after" },
     );
 
     res.json({ success: true, data: addressItem });

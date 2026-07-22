@@ -47,29 +47,31 @@ export default function EditProduct() {
     const fetchProduct = async () => {
       try {
         const { data } = await api.get(`/products/${id}`);
-        const product = data.data;
-        setName(product.name);
-        setDescription(product.description || "");
-        setPrice(product.price.toString());
-        setStock(product.stock.toString());
-        setCategory(
-          typeof product.category === "object"
-            ? product.category.name
-            : product.category,
-        );
-        setIsFeatured(product.isFeatured);
-
-        if (product.sizes)
-          setSizes(
-            Array.isArray(product.sizes)
-              ? product.sizes.join(", ")
-              : product.sizes,
+        if (data.success) {
+          const product = data.data;
+          setName(product.name);
+          setDescription(product.description || "");
+          setPrice(product.price.toString());
+          setStock(product.stock.toString());
+          setCategory(
+            typeof product.category === "object"
+              ? product.category.name
+              : product.category,
           );
+          setIsFeatured(product.isFeatured);
 
-        if (product.images && Array.isArray(product.images)) {
-          setExistingImages(product.images);
-        } else if (product.images) {
-          setExistingImages([product.images]);
+          if (product.sizes)
+            setSizes(
+              Array.isArray(product.sizes)
+                ? product.sizes.join(", ")
+                : product.sizes,
+            );
+
+          if (product.images && Array.isArray(product.images)) {
+            setExistingImages(product.images);
+          } else if (product.images) {
+            setExistingImages([product.images]);
+          }
         }
       } catch (error: any) {
         console.error("Failed to fetch product:", error);

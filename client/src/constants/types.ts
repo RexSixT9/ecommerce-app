@@ -45,7 +45,7 @@ export type ProductCardProps = {
 export type CartItemProps = {
     item: { id: string; product: Product; quantity: number; size: string };
     onRemove?: () => void;
-    onUpdateQuantity?: (newQty: number) => void;
+    onUpdateQuantity?: (newQty: number, size?: string) => void;
 };
 
 export type CategoryItemProps = {

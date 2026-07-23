@@ -77,6 +77,12 @@ export default function ProductDetails() {
   }
 
   const isLiked = isInWishlist(product._id);
+  const productImages = Array.isArray(product.images)
+    ? product.images.filter(Boolean)
+    : product.images
+      ? [product.images]
+      : [];
+  const productSizes = Array.isArray(product.sizes) ? product.sizes.filter(Boolean) : [];
 
   const handleAddToCart = (product: Product) => {
     if (!selectedSize) {
@@ -113,7 +119,7 @@ export default function ProductDetails() {
               }
             }}
           >
-            {product.images?.map((image, index) => (
+            {(productImages.length > 0 ? productImages : ["https://via.placeholder.com/900x900"]).map((image, index) => (
               <Image
                 key={index}
                 source={{ uri: image }}
@@ -146,7 +152,7 @@ export default function ProductDetails() {
 
           {/* Pagination Dots */}
           <View className="flex-row justify-center gap-2 absolute bottom-4 left-0 right-0 z-10">
-            {product.images?.map((_, index) => (
+            {productImages.map((_, index) => (
               <View
                 key={index}
                 className={`h-2 rounded-full ${
@@ -182,13 +188,13 @@ export default function ProductDetails() {
           </Text>
 
           {/* Size */}
-          {product.sizes && product.sizes.length > 0 && (
+          {productSizes.length > 0 && (
             <View className="mb-4">
               <Text className="text-base font-bold text-primary mb-3">
                 Size
               </Text>
               <View className="flex-row flex-wrap gap-3 mb-6">
-                {product.sizes.map((size) => (
+                {productSizes.map((size) => (
                   <Pressable
                     key={size}
                     onPress={() => setSelectedSize(size)}

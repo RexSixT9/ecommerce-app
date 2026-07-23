@@ -90,29 +90,35 @@ export default function EditProduct() {
   }, [id]);
 
   const pickImages = async () => {
+    const remainingSlots = 5 - (existingImages.length + newImages.length);
+    if (remainingSlots <= 0) {
+      Toast.show({
+        type: "error",
+        text1: "Image Limit Reached",
+        text2: "You can upload up to 5 product images.",
+      });
+      return;
+    }
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsMultipleSelection: true,
-      selectionLimit: 5 - (existingImages.length + newImages.length),
+      selectionLimit: remainingSlots,
       quality: 0.8,
     });
 
     if (!result.canceled) {
-      const uris = result.assets.map((asset) => asset.uri);
-      setNewImages([...newImages, ...uris]);
+      const uris = (result.assets ?? []).map((asset) => asset.uri);
+      setNewImages((prev) => [...prev, ...uris].slice(0, 5 - existingImages.length));
     }
   };
 
   const removeExistingImage = (index: number) => {
-    const updated = [...existingImages];
-    updated.splice(index, 1);
-    setExistingImages(updated);
+    setExistingImages((current) => current.filter((_, i) => i !== index));
   };
 
   const removeNewImage = (index: number) => {
-    const updated = [...newImages];
-    updated.splice(index, 1);
-    setNewImages(updated);
+    setNewImages((current) => current.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async () => {

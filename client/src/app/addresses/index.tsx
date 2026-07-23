@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
   Modal,
   TextInput,
@@ -15,11 +15,14 @@ import Header from "@/components/Header";
 import { COLORS } from "@/constants";
 import type { Address } from "@/constants/types";
 import { useAuth } from "@clerk/expo";
+import { useRouter } from "expo-router";
 import api from "src/constants/api";
 import Toast from "react-native-toast-message";
+import EmptyStateCard from "src/components/EmptyStateCard";
 
 export default function Addresses() {
   const { getToken, isSignedIn } = useAuth();
+  const router = useRouter();
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,6 +53,7 @@ export default function Addresses() {
       setLoading(true);
       if (!isSignedIn) {
         setAddresses([]);
+        setLoading(false);
         return;
       }
       const token = await getToken();
@@ -216,17 +220,34 @@ export default function Addresses() {
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
+      ) : !isSignedIn ? (
+        <View className="flex-1 items-center justify-center px-8">
+          <EmptyStateCard
+            iconName="lock-closed-outline"
+            iconColor={COLORS.primary}
+            title="Sign in required"
+            description="Please sign in to manage your shipping addresses."
+            actionLabel="Sign In"
+            onActionPress={() => router.push("/(auth)/sign-in")}
+          />
+        </View>
       ) : (
         <ScrollView className="flex-1 px-4 pt-4">
           {addresses.length === 0 ? (
-            <Text className="text-center text-secondary mt-10">
-              No addresses found
-            </Text>
+            <View className="items-center justify-center py-20">
+              <View className="w-16 h-16 rounded-full bg-surface items-center justify-center mb-4">
+                <Ionicons name="location-outline" size={30} color={COLORS.primary} />
+              </View>
+              <Text className="text-xl font-bold text-primary text-center">No addresses yet</Text>
+              <Text className="text-sm text-secondary text-center mt-2 px-8">
+                Add a shipping address to start receiving orders.
+              </Text>
+            </View>
           ) : (
             addresses.map((item) => (
               <View
                 key={item._id}
-                className="bg-white p-4 rounded-xl mb-4 shadow-sm"
+                className="bg-white p-4 rounded-xl mb-4 border border-border shadow-sm"
               >
                 <View className="flex-row items-center justify-between mb-2">
                   <View className="flex-row items-center">
@@ -251,22 +272,26 @@ export default function Addresses() {
                     )}
                   </View>
                   <View className="flex-row items-center gap-4">
-                    <TouchableOpacity onPress={() => handleEditSearch(item)}>
+                    <Pressable
+                      onPress={() => handleEditSearch(item)}
+                      style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+                    >
                       <Ionicons
                         name="pencil-outline"
                         size={20}
                         color={COLORS.secondary}
                       />
-                    </TouchableOpacity>
-                    <TouchableOpacity
+                    </Pressable>
+                    <Pressable
                       onPress={() => handleDeleteAddress(item._id)}
+                      style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
                     >
                       <Ionicons
                         name="trash-outline"
                         size={20}
-                        color={COLORS.error || "#ff4444"}
+                        color={COLORS.error}
                       />
-                    </TouchableOpacity>
+                    </Pressable>
                   </View>
                 </View>
                 <Text className="text-secondary leading-5 ml-7">
@@ -277,15 +302,16 @@ export default function Addresses() {
             ))
           )}
 
-          <TouchableOpacity
-            className="flex-row items-center justify-center p-4 border border-dashed border-gray-300 rounded-xl mt-2 mb-8"
+          <Pressable
+            className="flex-row items-center justify-center p-4 rounded-xl border-2 border-dashed border-border mt-6 mb-12"
             onPress={openAddModal}
+            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
           >
             <Ionicons name="add" size={24} color={COLORS.secondary} />
-            <Text className="text-secondary font-medium ml-2">
+            <Text className="text-secondary font-bold ml-2">
               Add New Address
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </ScrollView>
       )}
 
@@ -297,31 +323,32 @@ export default function Addresses() {
         onRequestClose={() => setModalVisible(false)}
       >
         <View className="flex-1 justify-end bg-black/50">
-          <View className="bg-white rounded-t-3xl p-6 h-[85%]">
+          <View className="bg-white rounded-t-xl p-6 h-[85%]">
             <View className="flex-row justify-between items-center mb-6">
               <Text className="text-xl font-bold text-primary">
                 {isEditing ? "Edit Address" : "Add New Address"}
               </Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Pressable onPress={() => setModalVisible(false)}>
                 <Ionicons name="close" size={24} color={COLORS.primary} />
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text className="text-primary font-medium mb-2">Label</Text>
               <View className="flex-row gap-3 mb-4">
                 {["Home", "Work", "Other"].map((t) => (
-                  <TouchableOpacity
+                  <Pressable
                     key={t}
                     onPress={() => setType(t)}
-                    className={`px-4 py-2 rounded-full border ${type === t ? "bg-primary border-primary" : "bg-white border-gray-300"}`}
+                    className={`px-4 py-2 rounded-full border ${type === t ? "bg-primary border-primary" : "bg-white border-border"}`}
+                    style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
                   >
                     <Text
                       className={type === t ? "text-white" : "text-primary"}
                     >
                       {t}
                     </Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 ))}
               </View>
 
@@ -380,33 +407,35 @@ export default function Addresses() {
                 </View>
               </View>
 
-              <TouchableOpacity
+              <Pressable
                 className="flex-row items-center mb-8"
                 onPress={() => setIsDefault(!isDefault)}
+                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
               >
                 <View
-                  className={`w-5 h-5 border rounded mr-2 items-center justify-center ${isDefault ? "bg-primary border-primary" : "border-gray-300"}`}
+                  className={`w-5 h-5 border rounded mr-2 items-center justify-center ${isDefault ? "bg-primary border-primary" : "border-border"}`}
                 >
                   {isDefault && (
                     <Ionicons name="checkmark" size={14} color="white" />
                   )}
                 </View>
                 <Text className="text-primary">Set as default address</Text>
-              </TouchableOpacity>
+              </Pressable>
 
-              <TouchableOpacity
-                className="w-full bg-primary py-4 rounded-full items-center mb-10"
+              <Pressable
+                className={`w-full bg-primary py-4 rounded-full items-center mb-10 ${submitting ? "opacity-50" : ""}`}
                 onPress={handleSaveAddress}
                 disabled={submitting}
+                style={({ pressed }) => ({ opacity: pressed && !submitting ? 0.8 : 1 })}
               >
                 {submitting ? (
                   <ActivityIndicator color="white" />
                 ) : (
-                  <Text className="text-white font-bold text-lg">
+                    <Text className="text-white font-bold text-lg">
                     Save Address
                   </Text>
                 )}
-              </TouchableOpacity>
+              </Pressable>
             </ScrollView>
           </View>
         </View>

@@ -51,13 +51,9 @@ export default function AdminDashboard() {
 
   const onRefresh = () => {
     setRefreshing(true);
-    try {
-      fetchStats();
-    } catch (error) {
+    fetchStats().catch((error) => {
       console.error("Error refreshing admin stats:", error);
-    } finally {
-      setRefreshing(false);
-    }
+    });
   };
 
   if (loading && !refreshing) {

@@ -4,6 +4,8 @@ import { View, Text, Pressable, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CartItem from "src/components/CartItem";
 import Header from "src/components/Header";
+import EmptyStateCard from "src/components/EmptyStateCard";
+import { COLORS } from "src/constants";
 import { useCart, CartItem as CartItemType } from "src/context/CartContext";
 
 export default function Cart() {
@@ -34,8 +36,8 @@ export default function Cart() {
       <CartItem
         item={item}
         onRemove={() => handleRemove(item.productId, item.size)}
-        onUpdateQuantity={(newQuantity) =>
-          handleUpdateQuantity(item.productId, newQuantity, item.size)
+        onUpdateQuantity={(newQuantity, size) =>
+          handleUpdateQuantity(item.productId, newQuantity, size ?? item.size)
         }
       />
     ),
@@ -46,35 +48,38 @@ export default function Cart() {
 
   const ListFooterComponent = useCallback(
     () => (
-      <View className="p-4 bg-white rounded-t-3xl shadow-md">
+      <View className="mt-4 rounded-xl bg-white p-4 shadow-sm">
+        <Text className="text-primary font-bold text-base mb-3">
+          Order Summary
+        </Text>
+
         <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-secondary">Total: </Text>
-          <Text className="font-bold text-primary">
+          <Text className="text-secondary text-sm">Subtotal</Text>
+          <Text className="text-sm text-primary">
             ${cartTotal.toFixed(2)}
           </Text>
         </View>
 
         <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-secondary">Shipping: </Text>
-          <Text className="font-bold text-primary">
+          <Text className="text-secondary text-sm">Shipping</Text>
+          <Text className="text-sm text-primary">
             ${shipping.toFixed(2)}
           </Text>
         </View>
 
-        <View className="h-[1px] bg-border mb-2" />
+        <View className="h-[1px] bg-border my-2" />
 
-        <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-primary font-bold text-lg">
-            Grand Total:{" "}
-          </Text>
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="text-primary font-bold text-lg">Grand Total</Text>
           <Text className="font-bold text-primary text-lg">
             ${total.toFixed(2)}
           </Text>
         </View>
 
         <Pressable
-          className="bg-primary py-3 rounded-xl mt-4 items-center justify-center"
+          className="bg-primary py-3 rounded-full items-center justify-center"
           onPress={() => router.push("/checkout")}
+          style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
         >
           <Text className="text-white font-bold text-base">Checkout</Text>
         </Pressable>
@@ -83,33 +88,38 @@ export default function Cart() {
     [cartTotal, shipping, total, router],
   );
 
-  const ListEmptyComponent = useCallback(
-    () => (
-      <View className="flex-1 items-center justify-center py-20">
-        <Text className="text-lg text-secondary text-center">
-          Your cart is empty.
-        </Text>
-        <Pressable
-          className="mt-4 bg-primary py-3 rounded-xl px-6 items-center justify-center"
-          onPress={() => router.push("/")}
-        >
-          <Text className="text-white font-bold">Continue Shopping</Text>
-        </Pressable>
-      </View>
-    ),
-    [router],
-  );
+  if (cartItems.length === 0) {
+    return (
+      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+        <Header title="Cart" showMenu />
+        <View className="flex-1 items-center justify-center px-8">
+          <EmptyStateCard
+            iconName="bag-outline"
+            iconColor={COLORS.primary}
+            title="Your cart is empty"
+            description="Add a few products to see your subtotal, shipping, and checkout actions here."
+            actionLabel="Continue Shopping"
+            onActionPress={() => router.push("/")}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      <Header showBack title="Cart" />
+      <Header title="Cart" showMenu />
       <FlatList
         data={cartItems}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        ListFooterComponent={ListFooterComponent}
-        ListEmptyComponent={ListEmptyComponent}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
+        ListFooterComponent={cartItems.length > 0 ? ListFooterComponent : null}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingTop: 16,
+          paddingBottom: 96,
+          flexGrow: 1,
+        }}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews
         windowSize={5}

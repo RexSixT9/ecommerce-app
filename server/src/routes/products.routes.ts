@@ -18,16 +18,16 @@ ProductRouter.get("/:id", getProductById);
 // Admin routes
 ProductRouter.post(
   "/",
-  upload.array("images", 5),
   protect,
   authorize("admin"),
+  upload.array("images", 5),
   createProduct,
 );
 ProductRouter.put(
   "/:id",
-  upload.array("images"),
   protect,
   authorize("admin"),
+  upload.array("images", 5),
   updateProduct,
 );
 ProductRouter.delete("/:id", protect, authorize("admin"), deleteProduct);

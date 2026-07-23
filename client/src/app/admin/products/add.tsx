@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Modal,
   FlatList,
+  Platform,
   TouchableWithoutFeedback,
 } from "react-native";
 import Toast from "react-native-toast-message";
@@ -39,16 +40,25 @@ export default function AddProduct() {
 
   // PICK MULTIPLE IMAGES (MAX 5)
   const pickImages = async () => {
+    if (images.length >= 5) {
+      Toast.show({
+        type: "error",
+        text1: "Image Limit Reached",
+        text2: "You can upload up to 5 product images.",
+      });
+      return;
+    }
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsMultipleSelection: true,
-      selectionLimit: 5,
+      selectionLimit: Math.max(1, 5 - images.length),
       quality: 0.8,
     });
 
     if (!result.canceled) {
-      const uris = result.assets.map((asset) => asset.uri);
-      setImages(uris.slice(0, 5));
+      const uris = (result.assets ?? []).map((asset) => asset.uri);
+      setImages((prev) => [...prev, ...uris].slice(0, 5));
     }
   };
 
@@ -91,11 +101,19 @@ export default function AddProduct() {
       // Append images to FormData
       for (const [i, url] of images.entries()) {
         const fileName = `image_${i}.jpg`;
-        formData.append("images", {
-          uri: url,
-          name: fileName,
-          type: "image/jpeg",
-        } as any);
+        if (Platform.OS === "web") {
+          const blob = await (await fetch(url)).blob();
+          formData.append(
+            "images",
+            new File([blob], fileName, { type: "image/jpeg" }),
+          );
+        } else {
+          formData.append("images", {
+            uri: url,
+            name: fileName,
+            type: "image/jpeg",
+          } as any);
+        }
       }
 
       const { data } = await api.post("/products", formData, {

@@ -9,7 +9,7 @@ const CartItem = React.memo(function CartItem({
   onRemove,
   onUpdateQuantity,
 }: CartItemProps) {
-  const imageUrl = item.product.images[0] || "https://via.placeholder.com/150";
+  const imageUrl = item.product.images?.[0] || "https://via.placeholder.com/150";
 
   return (
     <View className="flex-row mb-4 bg-white p-3 rounded-xl shadow-sm">
@@ -32,7 +32,7 @@ const CartItem = React.memo(function CartItem({
             </Text>
           </View>
           <Pressable onPress={onRemove} className="mt-1">
-            <Ionicons name="trash-outline" size={20} color="#FF4C3B" />
+            <Ionicons name="trash-outline" size={20} color={COLORS.accent} />
           </Pressable>
         </View>
 
@@ -43,7 +43,7 @@ const CartItem = React.memo(function CartItem({
           <View className="flex-row items-center bg-surface rounded-full px-2 py-1">
             <Pressable
               onPress={() =>
-                onUpdateQuantity && onUpdateQuantity(item.quantity - 1)
+                onUpdateQuantity && onUpdateQuantity(item.quantity - 1, item.size)
               }
               className="p-1"
             >
@@ -54,7 +54,7 @@ const CartItem = React.memo(function CartItem({
             </Text>
             <Pressable
               onPress={() =>
-                onUpdateQuantity && onUpdateQuantity(item.quantity + 1)
+                onUpdateQuantity && onUpdateQuantity(item.quantity + 1, item.size)
               }
               className="p-1"
             >

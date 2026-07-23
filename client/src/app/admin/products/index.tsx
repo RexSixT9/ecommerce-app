@@ -149,7 +149,7 @@ export default function AdminProducts() {
                 source={{
                   uri:
                     product?.images && product.images.length > 0
-                      ? product.images[0]
+                      ? product.images?.[0]
                       : "https://via.placeholder.com/150",
                 }}
                 className="w-16 h-16 rounded-lg bg-gray-100 mr-3"

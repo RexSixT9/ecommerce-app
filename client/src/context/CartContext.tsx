@@ -161,7 +161,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const updateQuantity = async (
     productId: string,
     quantity: number,
-    size: string = "M",
+    size: string = "",
   ) => {
     if (!isSignedIn) {
       return Toast.show({

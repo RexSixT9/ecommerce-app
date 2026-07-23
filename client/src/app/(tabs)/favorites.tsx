@@ -12,6 +12,7 @@ import { useWishlist } from "src/context/WishlistContext";
 import { useRouter } from "expo-router";
 import ProductCard from "src/components/ProductCard";
 import { COLORS } from "@/constants";
+import EmptyStateCard from "src/components/EmptyStateCard";
 
 export default function Favorites() {
   const { wishlist, loading } = useWishlist();
@@ -20,7 +21,7 @@ export default function Favorites() {
   if (loading && wishlist.length === 0) {
     return (
       <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-        <Header title="Favorites" showMenu showCart />
+        <Header title="Favorites" showCart showMenu />
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
@@ -30,7 +31,7 @@ export default function Favorites() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      <Header title="Favorites" showMenu showCart />
+      <Header title="Favorites" showCart showMenu />
       {wishlist.length > 0 ? (
         <ScrollView
           className="flex-1 px-4 mt-4"
@@ -43,16 +44,15 @@ export default function Favorites() {
           </View>
         </ScrollView>
       ) : (
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-lg text-secondary">
-            You have no favorite items.
-          </Text>
-          <Pressable
-            className="bg-primary py-2 px-4 rounded-full mt-4"
-            onPress={() => router.push("/")}
-          >
-            <Text className="text-white text-lg">Browse Products</Text>
-          </Pressable>
+        <View className="flex-1 items-center justify-center px-8">
+          <EmptyStateCard
+            iconName="heart-outline"
+            iconColor={COLORS.primary}
+            title="Your favorites are empty"
+            description="Save products here so you can come back to them later."
+            actionLabel="Browse Products"
+            onActionPress={() => router.push("/")}
+          />
         </View>
       )}
     </SafeAreaView>

@@ -16,9 +16,10 @@ import Header from "src/components/Header";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { useAuth } from "@clerk/expo";
 import api from "src/constants/api";
+import EmptyStateCard from "src/components/EmptyStateCard";
 
 export default function Checkout() {
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
   const { cartTotal, clearCart } = useCart();
   const router = useRouter();
 
@@ -126,6 +127,24 @@ export default function Checkout() {
     fetchAddress(abortController.signal);
     return () => abortController.abort();
   }, []);
+
+  if (!isSignedIn) {
+    return (
+      <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
+        <Header title="Checkout" showBack />
+        <View className="flex-1 items-center justify-center px-8">
+          <EmptyStateCard
+            iconName="lock-closed-outline"
+            iconColor={COLORS.primary}
+            title="Sign in required"
+            description="Please sign in to proceed with checkout."
+            actionLabel="Sign In"
+            onActionPress={() => router.push("/(auth)/sign-in")}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (pageLoading) {
     return (

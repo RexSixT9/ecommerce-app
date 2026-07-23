@@ -9,7 +9,7 @@ import {
   View,
   Text,
   ActivityIndicator,
-  TouchableOpacity,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -86,22 +86,24 @@ export default function Page() {
   };
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-white justify-center"
-      style={{ padding: 28 }}
-    >
+    <SafeAreaView className="flex-1 bg-white justify-center px-6">
       {!showEmailCode ? (
         <>
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.push("/")}
-            className="absolute top-12 z-10"
+            className="absolute top-12 left-6 z-10"
           >
             <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
-          </TouchableOpacity>
+          </Pressable>
 
           {/* Header */}
           <View className="items-center mb-8">
-            <Text className="text-3xl font-bold text-primary mb-2">
+            <Image
+              source={require("../../../assets/logo.png")}
+              className="w-28 h-8 mb-6"
+              resizeMode="contain"
+            />
+            <Text className="text-2xl font-bold text-primary mb-2">
               Welcome Back
             </Text>
             <Text className="text-secondary">Sign in to continue</Text>
@@ -113,7 +115,7 @@ export default function Page() {
             <TextInput
               className="w-full bg-surface p-4 rounded-xl text-primary"
               placeholder="user@example.com"
-              placeholderTextColor="#999"
+              placeholderTextColor={COLORS.secondary}
               autoCapitalize="none"
               keyboardType="email-address"
               value={emailAddress}
@@ -127,7 +129,7 @@ export default function Page() {
             <TextInput
               className="w-full bg-surface p-4 rounded-xl text-primary"
               placeholder="********"
-              placeholderTextColor="#999"
+              placeholderTextColor={COLORS.secondary}
               secureTextEntry
               value={password}
               onChangeText={setPassword}
@@ -136,9 +138,10 @@ export default function Page() {
 
           {/* Submit */}
           <Pressable
-            className={`w-full py-4 rounded-full items-center mb-10 ${loading || !emailAddress || !password ? "bg-gray-300" : "bg-primary"}`}
+            className={`w-full py-4 rounded-full items-center mb-10 ${loading || !emailAddress || !password ? "bg-gray-200" : "bg-primary"}`}
             onPress={onSignInPress}
             disabled={loading || !emailAddress || !password}
+            style={({ pressed }) => (!loading && emailAddress && password ? { opacity: pressed ? 0.8 : 1 } : {})}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
@@ -157,6 +160,13 @@ export default function Page() {
         </>
       ) : (
         <>
+          <Pressable
+            onPress={() => setShowEmailCode(false)}
+            className="absolute top-12 left-6 z-10"
+          >
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
+          </Pressable>
+
           {/* Verification */}
           <View className="items-center mb-8">
             <Text className="text-3xl font-bold text-primary mb-2">
@@ -171,7 +181,7 @@ export default function Page() {
             <TextInput
               className="w-full bg-surface p-4 rounded-xl text-primary text-center tracking-widest"
               placeholder="123456"
-              placeholderTextColor="#999"
+              placeholderTextColor={COLORS.secondary}
               keyboardType="number-pad"
               value={code}
               onChangeText={setCode}
@@ -182,6 +192,7 @@ export default function Page() {
             className="w-full bg-primary py-4 rounded-full items-center"
             onPress={onVerifyPress}
             disabled={loading}
+            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />

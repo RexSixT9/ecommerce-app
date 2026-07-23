@@ -20,8 +20,14 @@ export const CATEGORIES = [
 export const PROFILE_MENU = [
     { id: 1, title: "My Orders", icon: "receipt-outline", route: "/orders" },
     { id: 2, title: "Shipping Addresses", icon: "location-outline", route: "/addresses" },
-    { id: 4, title: "My Reviews", icon: "star-outline", route: "/" },
-    { id: 5, title: "Settings", icon: "settings-outline", route: "/" },
+];
+
+export const SIDE_MENU_ITEMS = [
+  { id: 1, title: "Home", icon: "home-outline", route: "/(tabs)" },
+  { id: 2, title: "Shop", icon: "grid-outline", route: "/shop" },
+  { id: 3, title: "Favorites", icon: "heart-outline", route: "/(tabs)/favorites" },
+  { id: 4, title: "My Orders", icon: "receipt-outline", route: "/orders" },
+  { id: 5, title: "Shipping Addresses", icon: "location-outline", route: "/addresses" },
 ];
 
 export const getStatusColor = (status: string) => {

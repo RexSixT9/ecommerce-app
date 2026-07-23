@@ -2,6 +2,8 @@ import { Stack } from "expo-router";
 import "@/global.css";
 import { CartProvider } from "src/context/CartContext";
 import { WishlistProvider } from "src/context/WishlistContext";
+import { MenuProvider } from "src/context/MenuContext";
+import SideMenu from "src/components/SideMenu";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
 import { toastConfig } from "@/config/toast";
@@ -20,8 +22,11 @@ export default function RootLayout() {
       <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
         <CartProvider>
           <WishlistProvider>
-            <Stack screenOptions={{ headerShown: false }} />
-            <Toast config={toastConfig} position="top" />
+            <MenuProvider>
+              <Stack screenOptions={{ headerShown: false }} />
+              <SideMenu />
+              <Toast config={toastConfig} position="top" />
+            </MenuProvider>
           </WishlistProvider>
         </CartProvider>
       </ClerkProvider>

@@ -63,9 +63,9 @@ export default function Home() {
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       <Header showMenu showCart showLogo title="Home" />
 
-      <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1 px-4 pt-4" showsVerticalScrollIndicator={false}>
         {/* Banners */}
-        <View className="mt-4 -mx-4">
+        <View className="-mx-4">
           <FlatList
             data={BANNERS}
             keyExtractor={(item) => item.id.toString()}

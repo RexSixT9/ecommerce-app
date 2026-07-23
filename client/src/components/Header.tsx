@@ -4,6 +4,7 @@ import Ionicons from "@react-native-vector-icons/ionicons";
 import { COLORS } from "@/constants";
 import { useRouter } from "expo-router";
 import { useCart } from "src/context/CartContext";
+import { useMenu } from "src/context/MenuContext";
 
 export default function Header({
   title,
@@ -15,17 +16,18 @@ export default function Header({
 }: HeaderProps) {
   const router = useRouter();
   const {itemCount} = useCart();
+  const {openMenu} = useMenu();
 
   return (
     <View className="relative flex-row items-center px-4 py-3 bg-white">
-      <View className="flex-row items-center" style={{ width: 84 }}>
+      <View className="flex-row items-center h-9" style={{ width: 84 }}>
         {showBack && (
           <TouchableOpacity onPress={() => router.back()} className="mr-3 p-1">
             <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
         )}
         {showMenu && (
-          <TouchableOpacity className="mr-3 p-1">
+          <TouchableOpacity className="mr-3 p-1" onPress={openMenu}>
             <Ionicons name="menu-outline" size={28} color={COLORS.primary} />
           </TouchableOpacity>
         )}
@@ -54,7 +56,7 @@ export default function Header({
       </View>
 
       <View
-        className="ml-auto flex-row items-center justify-end gap-4"
+        className="ml-auto flex-row items-center justify-end gap-4 h-9"
         style={{ width: 84 }}
       >
         {showSearch && (

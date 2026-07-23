@@ -3,12 +3,14 @@ import {
   ScrollView,
   Text,
   View,
-  ActivityIndicator,
   RefreshControl,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS, getStatusColor } from "@/constants";
 import { useAuth } from "@clerk/expo/";
+import { StatCardSkeleton, OrderAdminSkeleton } from "src/components/Skeleton";
 import api from "src/constants/api";
+import type { Order } from "@/constants/types";
 
 export default function AdminDashboard() {
   const { getToken } = useAuth();
@@ -19,16 +21,17 @@ export default function AdminDashboard() {
     totalProducts: 0,
     totalOrders: 0,
     totalRevenue: 0,
-    recentOrders: [],
+    recentOrders: [] as Order[],
   });
 
-  const fetchStats = async () => {
+  const fetchStats = async (signal?: AbortSignal) => {
     try {
       const token = await getToken();
       const { data } = await api.get("/admin/stats", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       });
       if (data.success) {
         setStats(data.data);
@@ -42,31 +45,41 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    fetchStats();
+    const abortController = new AbortController();
+    fetchStats(abortController.signal);
+    return () => abortController.abort();
   }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
-    try {
-      fetchStats();
-    } catch (error) {
+    fetchStats().catch((error) => {
       console.error("Error refreshing admin stats:", error);
-    } finally {
-      setRefreshing(false);
-    }
+    });
   };
 
   if (loading && !refreshing) {
     return (
-      <View className="flex-1 justify-center items-center bg-surface">
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
+      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+        <View className="px-4 pt-4">
+          <View className="flex-row flex-wrap justify-between">
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </View>
+          <View className="mt-6">
+            <OrderAdminSkeleton />
+            <OrderAdminSkeleton />
+          </View>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
     <ScrollView
-      className="flex-1 bg-surface p-4"
+      className="flex-1 px-4 pt-4"
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -91,21 +104,21 @@ export default function AdminDashboard() {
           Recent Orders
         </Text>
         {stats.recentOrders.length === 0 ? (
-          <View className="bg-white p-6 rounded-2xl border border-gray-100 items-center">
+          <View className="bg-white p-6 rounded-xl border border-border items-center">
             <Text className="text-secondary">No recent orders</Text>
           </View>
         ) : (
-          stats.recentOrders.map((order: any) => (
+          stats.recentOrders.map((order) => (
             <View
               key={order._id}
-              className="bg-white p-5 rounded-2xl border border-gray-100 mb-3"
+              className="bg-white p-5 rounded-xl border border-border shadow-sm mb-4"
             >
               <View className="flex-row justify-between items-center mb-3">
                 <View>
                   <Text className="font-bold text-primary text-base">
                     Total Products :{" "}
                     {order.items.reduce(
-                      (acc: number, item: any) => acc + item.quantity,
+                      (acc: number, item) => acc + item.quantity,
                       0,
                     )}
                   </Text>
@@ -122,24 +135,24 @@ export default function AdminDashboard() {
                 </View>
               </View>
               <View className="pb-2">
-                {order.items.map((item: any) => (
+                {order.items.map((item) => (
                   <Text key={item._id} className="text-secondary text-xs mt-1">
                     {item.name} x {item.quantity}
                   </Text>
                 ))}
               </View>
 
-              <View className="h-[1px] bg-gray-100 mb-3" />
+              <View className="h-px bg-gray-100 mb-3" />
 
               <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center">
-                  <View className="w-8 h-8 rounded-full bg-gray-100 items-center justify-center mr-2">
+                  <View className="w-8 h-8 rounded-full bg-surface items-center justify-center mr-2">
                     <Text className="text-primary font-bold text-xs">
-                      {(order.user?.name || "?").charAt(0).toUpperCase()}
+                      {(typeof order.user === "object" && order.user?.name ? order.user.name : "?").charAt(0).toUpperCase()}
                     </Text>
                   </View>
                   <Text className="text-secondary text-sm">
-                    {order.user?.name || "Unknown User"}
+                    {typeof order.user === "object" && order.user?.name ? order.user.name : "Unknown User"}
                   </Text>
                 </View>
                 <Text className="text-primary font-bold text-lg">
@@ -151,11 +164,12 @@ export default function AdminDashboard() {
         )}
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const StatCard = ({ label, value }: { label: string; value: string }) => (
-  <View className="bg-white p-5 rounded-2xl border border-gray-100 w-[48%] mb-4 justify-center">
+  <View className="bg-white p-5 rounded-xl border border-border shadow-sm w-[48%] mb-4 justify-center">
     <Text className="text-xl font-bold text-primary mb-1">{value}</Text>
     <Text className="text-secondary text-xs font-medium uppercase tracking-wide">
       {label}

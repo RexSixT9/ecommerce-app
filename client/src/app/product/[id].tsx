@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  ActivityIndicator,
   ScrollView,
   Image,
   Dimensions,
@@ -17,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS } from "src/constants";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Toast from "react-native-toast-message";
+import { ProductDetailSkeleton } from "src/components/Skeleton";
 import api from "src/constants/api";
 
 const { width } = Dimensions.get("window");
@@ -27,15 +27,15 @@ export default function ProductDetails() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const { addToCart, cartItems, itemCount } = useCart();
+  const { addToCart, itemCount } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
 
-  const fetchProductDetails = async () => {
+  const fetchProductDetails = async (signal?: AbortSignal) => {
     try {
-      const { data } = await api.get(`/products/${id}`);
+      const { data } = await api.get(`/products/${id}`, { signal });
       if (data.success) {
         setProduct(data.data);
       } else {
@@ -55,13 +55,15 @@ export default function ProductDetails() {
   };
 
   useEffect(() => {
-    fetchProductDetails();
+    const abortController = new AbortController();
+    fetchProductDetails(abortController.signal);
+    return () => abortController.abort();
   }, [id]);
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <SafeAreaView className="flex-1 bg-white">
+        <ProductDetailSkeleton />
       </SafeAreaView>
     );
   }
@@ -75,6 +77,12 @@ export default function ProductDetails() {
   }
 
   const isLiked = isInWishlist(product._id);
+  const productImages = Array.isArray(product.images)
+    ? product.images.filter(Boolean)
+    : product.images
+      ? [product.images]
+      : [];
+  const productSizes = Array.isArray(product.sizes) ? product.sizes.filter(Boolean) : [];
 
   const handleAddToCart = (product: Product) => {
     if (!selectedSize) {
@@ -86,11 +94,6 @@ export default function ProductDetails() {
       return;
     }
     addToCart(product, selectedSize || "");
-    Toast.show({
-      type: "success",
-      text1: "Added to Cart",
-      text2: `${product.name} has been added to your cart.`,
-    });
   };
 
   return (
@@ -116,7 +119,7 @@ export default function ProductDetails() {
               }
             }}
           >
-            {product.images?.map((image, index) => (
+            {(productImages.length > 0 ? productImages : ["https://via.placeholder.com/900x900"]).map((image, index) => (
               <Image
                 key={index}
                 source={{ uri: image }}
@@ -149,7 +152,7 @@ export default function ProductDetails() {
 
           {/* Pagination Dots */}
           <View className="flex-row justify-center gap-2 absolute bottom-4 left-0 right-0 z-10">
-            {product.images?.map((_, index) => (
+            {productImages.map((_, index) => (
               <View
                 key={index}
                 className={`h-2 rounded-full ${
@@ -185,13 +188,13 @@ export default function ProductDetails() {
           </Text>
 
           {/* Size */}
-          {product.sizes && product.sizes.length > 0 && (
+          {productSizes.length > 0 && (
             <View className="mb-4">
               <Text className="text-base font-bold text-primary mb-3">
                 Size
               </Text>
               <View className="flex-row flex-wrap gap-3 mb-6">
-                {product.sizes.map((size) => (
+                {productSizes.map((size) => (
                   <Pressable
                     key={size}
                     onPress={() => setSelectedSize(size)}

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Order } from "../models/order.model.js";
 import { Cart } from "../models/cart.model.js";
 import Product from "../models/product.model.js";
+import { IProduct } from "../types/index.js";
 import { randomUUID } from "crypto";
 
 const buildOrderNumber = () => `ORD-${Date.now()}-${randomUUID().slice(0, 8)}`;
@@ -75,12 +76,14 @@ export const createOrder = async (req: Request, res: Response) => {
           message: `Insufficient stock for product ${product.name}`,
         });
       }
+      const populatedProduct = item.product as unknown as IProduct;
       orderItems.push({
         product: item.product._id,
         quantity: item.quantity,
         price: product.price,
         size: item.size,
-        name: (item.product as any).name,
+        name: populatedProduct.name,
+        image: populatedProduct.images?.[0],
       });
 
       product.stock -= item.quantity;
@@ -88,7 +91,7 @@ export const createOrder = async (req: Request, res: Response) => {
     }
 
     const subtotal = cart.totalAmount;
-    const shippingCost = 5;
+    const shippingCost = 2;
     const tax = subtotal * 0.1;
     const total = subtotal + shippingCost + tax;
 

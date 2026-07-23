@@ -42,16 +42,10 @@ export type ProductCardProps = {
     product: Product;
 };
 
-export interface CartItem {
-    product: Product;
-    quantity: number;
-    size: string;
-}
-
 export type CartItemProps = {
-    item: { id: string; product: { name: string; price: number; images: string[] }; quantity: number; size: string };
+    item: { id: string; product: Product; quantity: number; size: string };
     onRemove?: () => void;
-    onUpdateQuantity?: (newQty: number) => void;
+    onUpdateQuantity?: (newQty: number, size?: string) => void;
 };
 
 export type CategoryItemProps = {
@@ -82,6 +76,7 @@ export interface Address {
 }
 
 export interface OrderItem {
+    _id?: string;
     product: Product | string;
     name: string;
     quantity: number;
@@ -112,6 +107,19 @@ export interface Order {
     notes?: string;
     deliveredAt?: string;
     createdAt: string;
+}
+
+export interface Banner {
+  _id: string;
+  image: string;
+  title: string;
+  subtitle?: string;
+  link?: string;
+  isActive: boolean;
+  order: number;
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
 }
 
 export type WishlistContextType = {

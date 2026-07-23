@@ -12,13 +12,13 @@ export const protect = async (
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    let user = await User.findOne({ clerkId: userId }).select("-password");
-    req.user = user;
+    const user = await User.findOne({ clerkId: userId }).select("-password");
 
     if (!user) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
+    req.user = user;
     next();
   } catch (err) {
     console.error("Error in auth middleware:", err);
@@ -28,10 +28,6 @@ export const protect = async (
 
 export const authorize = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
-
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ success: false, message: "Forbidden" });
     }

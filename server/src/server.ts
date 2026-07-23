@@ -14,6 +14,7 @@ import WishlistRouter from "./routes/wishlist.routes.js";
 import OrderRouter from "./routes/order.route.js";
 import AddressRouter from "./routes/address.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import BannerRouter from "./routes/banner.routes.js";
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use("/api/wishlist", WishlistRouter);
 app.use("/api/orders", OrderRouter);
 app.use("/api/addresses", AddressRouter);
 app.use("/api/admin", adminRoutes);
+app.use("/api/banners", BannerRouter);
 
 //  404 Handler
 app.use((_req: Request, res: Response) => {

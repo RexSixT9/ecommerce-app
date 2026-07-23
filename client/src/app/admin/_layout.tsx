@@ -76,6 +76,15 @@ export default function AdminLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="banners"
+        options={{
+          title: "Banners",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="image-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

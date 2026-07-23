@@ -1,10 +1,10 @@
-import { Request } from "express";
+import { IUser } from "./index.js";
 
 declare global {
     namespace Express {
         interface Request {
-            user?: any;
-            auth?: any;
+            user: IUser;
+            auth: () => Promise<{ userId: string | null }>;
         }
     }
 }

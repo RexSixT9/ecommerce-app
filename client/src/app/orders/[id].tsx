@@ -1,12 +1,13 @@
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, ScrollView, Text, View, ActivityIndicator } from "react-native";
+import { Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/Header";
 import { COLORS } from "@/constants";
 import type { Order, Product } from "@/constants/types";
 import { useAuth } from "@clerk/expo";
+import { ProductDetailSkeleton } from "src/components/Skeleton";
 import api from "src/constants/api";
 
 export default function OrderDetails() {
@@ -15,7 +16,7 @@ export default function OrderDetails() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       const token = await getToken();
@@ -23,6 +24,7 @@ export default function OrderDetails() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       });
       setOrder(data.data);
     } catch (error: any) {
@@ -34,13 +36,15 @@ export default function OrderDetails() {
   };
 
   useEffect(() => {
-    fetchOrderDetails();
+    const abortController = new AbortController();
+    fetchOrderDetails(abortController.signal);
+    return () => abortController.abort();
   }, [id]);
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-surface justify-center items-center">
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <SafeAreaView className="flex-1 bg-surface">
+        <ProductDetailSkeleton />
       </SafeAreaView>
     );
   }
@@ -127,8 +131,8 @@ export default function OrderDetails() {
         {/* Items */}
         <View className="bg-white p-4 rounded-xl mb-4 border border-gray-100">
           <Text className="text-lg font-bold text-primary mb-4">Products</Text>
-          {order.items.map((item: any, index: number) => {
-            const productData = item.product as Product;
+          {order.items.map((item, index: number) => {
+            const productData = typeof item.product === "string" ? null : (item.product as Product);
             const image = productData?.images?.[0];
 
             return (

@@ -34,6 +34,7 @@ export interface IOrderItem {
     quantity: number;
     price: number;
     size?: string;
+    image?: string;
 }
 
 export interface IOrder extends Document {
@@ -86,6 +87,19 @@ export interface IUser extends Document {
     clerkId: string;
     image?: string;
     role: "user" | "admin";
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface IBanner extends Document {
+    image: string;
+    title: string;
+    subtitle?: string;
+    link?: string;
+    isActive: boolean;
+    order: number;
+    startDate?: Date;
+    endDate?: Date;
     createdAt: Date;
     updatedAt: Date;
 }

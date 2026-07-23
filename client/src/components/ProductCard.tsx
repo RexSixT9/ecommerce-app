@@ -7,7 +7,7 @@ import { ProductCardProps } from "@/constants/types";
 import { COLORS } from "@/constants";
 import { useWishlist } from "src/context/WishlistContext";
 
-export default function ProductCard({ product }: ProductCardProps) {
+const ProductCard = React.memo(function ProductCard({ product }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isLiked = isInWishlist(product._id);
 
@@ -80,4 +80,6 @@ export default function ProductCard({ product }: ProductCardProps) {
       </Pressable>
     </Link>
   );
-}
+});
+
+export default ProductCard;

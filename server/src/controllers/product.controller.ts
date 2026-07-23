@@ -1,13 +1,79 @@
 import { Request, Response } from "express";
 import Product from "../models/product.model.js";
-import { cloudinaryConfig } from "../config/cloudinary.js";
+import { getCloudinary } from "../config/cloudinary.js";
+
+const parseBooleanField = (value: unknown, fallback = false) => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") return value.toLowerCase() === "true";
+  return fallback;
+};
+
+const parseOptionalBooleanField = (value: unknown) => {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+  return parseBooleanField(value);
+};
+
+const parseStringArrayField = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value
+      .flatMap((entry) =>
+        typeof entry === "string"
+          ? entry.split(",").map((item) => item.trim())
+          : [],
+      )
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        return parsed.map((item) => String(item).trim()).filter(Boolean);
+      }
+    } catch {
+      // Fall through to comma-separated parsing.
+    }
+
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
+
+const uploadFilesToCloudinary = async (files: Express.Multer.File[]) => {
+  if (!files.length) return [];
+
+  const uploadPromises = files.map((file) => {
+    return new Promise<string>((resolve, reject) => {
+      const uploadStream = getCloudinary().uploader.upload_stream(
+        { folder: "ecom/products" },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result!.secure_url);
+          }
+        },
+      );
+
+      uploadStream.end(file.buffer);
+    });
+  });
+
+  return await Promise.all(uploadPromises);
+};
 
 // Get all products with pagination
 // GET /api/products?page=1&limit=10
 export const getProducts = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
-    const query: any = { isActive: true };
+    const { page = 1, limit = 10, showAll } = req.query;
+    const query: any = showAll === "true" ? {} : { isActive: true };
 
     const total = await Product.countDocuments(query);
     const products = await Product.find(query)
@@ -51,40 +117,9 @@ export const getProductById = async (req: Request, res: Response) => {
 // POST /api/products
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    let images: string[] = [];
-
-    if (req.files && (req.files as any).length > 0) {
-      const uploadPromises = (req.files as any).map((file: any) => {
-        return new Promise((resolve, reject) => {
-          const uploadStream = cloudinaryConfig.uploader.upload_stream(
-            { folder: "ecom/products" },
-            (error, result) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(result!.secure_url);
-              }
-            },
-          );
-          uploadStream.end(file.buffer);
-        });
-      });
-      images = (await Promise.all(uploadPromises)) as string[];
-    }
-
-    let sizes = req.body.sizes || [];
-    if (typeof sizes === "string") {
-      try {
-        sizes = JSON.parse(sizes);
-      } catch (error) {
-        sizes = sizes
-          .split(",")
-          .map((size: string) => size.trim())
-          .filter((size: string) => size !== "");
-      }
-    }
-
-    if (!Array.isArray(sizes)) sizes = [sizes];
+    const files = Array.isArray(req.files) ? req.files : [];
+    const images = await uploadFilesToCloudinary(files);
+    const sizes = parseStringArrayField(req.body.sizes);
     const {
       name,
       description,
@@ -103,8 +138,8 @@ export const createProduct = async (req: Request, res: Response) => {
       category,
       comparePrice,
       stock,
-      isActive,
-      isFeatured,
+      isActive: parseBooleanField(isActive, true),
+      isFeatured: parseBooleanField(isFeatured, false),
       images,
       sizes,
     };
@@ -120,7 +155,13 @@ export const createProduct = async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: product });
   } catch (error: any) {
-    res.status(400).json({ success: false, message: "Error creating product" });
+    console.error("Error creating product:", error);
+    const statusCode =
+      error?.name === "ValidationError" || error?.name === "CastError" ? 400 : 500;
+    res.status(statusCode).json({
+      success: false,
+      message: error?.message || "Error creating product",
+    });
   }
 };
 
@@ -128,35 +169,10 @@ export const createProduct = async (req: Request, res: Response) => {
 // PUT /api/products/:id
 export const updateProduct = async (req: Request, res: Response) => {
   try {
-    let images: string[] = [];
-
-    if (req.body.existingImages) {
-      if (Array.isArray(req.body.existingImages)) {
-        images = [...req.body.existingImages];
-      } else {
-        images = [req.body.existingImages];
-      }
-    }
-
-    if (req.files && (req.files as any).length > 0) {
-      const uploadPromises = (req.files as any).map((file: any) => {
-        return new Promise((resolve, reject) => {
-          const uploadStream = cloudinaryConfig.uploader.upload_stream(
-            { folder: "ecom/products" },
-            (error, result) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(result!.secure_url);
-              }
-            },
-          );
-          uploadStream.end(file.buffer);
-        });
-      });
-      const newImages = (await Promise.all(uploadPromises)) as string[];
-      images = [...images, ...newImages];
-    }
+    const existingImages = parseStringArrayField(req.body.existingImages);
+    const files = Array.isArray(req.files) ? req.files : [];
+    const newImages = await uploadFilesToCloudinary(files);
+    const images = [...existingImages, ...newImages];
 
     const {
       name,
@@ -176,30 +192,22 @@ export const updateProduct = async (req: Request, res: Response) => {
       category,
       comparePrice,
       stock,
-      isActive,
-      isFeatured,
     };
 
-    if (req.body.sizes) {
-      let sizes = req.body.sizes;
-      if (typeof sizes === "string") {
-        try {
-          sizes = JSON.parse(sizes);
-        } catch (error) {
-          sizes = sizes
-            .split(",")
-            .map((size: string) => size.trim())
-            .filter((size: string) => size !== "");
-        }
-      }
-      if (!Array.isArray(sizes)) sizes = [sizes];
-      updates.sizes = sizes;
+    const parsedIsActive = parseOptionalBooleanField(isActive);
+    const parsedIsFeatured = parseOptionalBooleanField(isFeatured);
+    if (parsedIsActive !== undefined) {
+      updates.isActive = parsedIsActive;
+    }
+    if (parsedIsFeatured !== undefined) {
+      updates.isFeatured = parsedIsFeatured;
     }
 
-    if (
-      req.body.existingImages ||
-      (req.files && (req.files as any).length > 0)
-    ) {
+    if (req.body.sizes !== undefined) {
+      updates.sizes = parseStringArrayField(req.body.sizes);
+    }
+
+    if (req.body.existingImages !== undefined || files.length > 0) {
       updates.images = images;
     }
 
@@ -215,7 +223,13 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     res.json({ success: true, data: product });
   } catch (error: any) {
-    res.status(400).json({ success: false, message: "Error updating product" });
+    console.error("Error updating product:", error);
+    const statusCode =
+      error?.name === "ValidationError" || error?.name === "CastError" ? 400 : 500;
+    res.status(statusCode).json({
+      success: false,
+      message: error?.message || "Error updating product",
+    });
   }
 };
 
@@ -238,7 +252,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
           );
           const publicId = publicIdMatch ? publicIdMatch[1] : null;
           if (publicId) {
-            cloudinaryConfig.uploader.destroy(publicId, (error, result) => {
+            getCloudinary().uploader.destroy(publicId, (error, result) => {
               if (error) {
                 reject(error);
               } else {

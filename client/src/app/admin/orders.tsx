@@ -10,22 +10,25 @@ import {
   TouchableWithoutFeedback,
   FlatList,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS, getStatusColor } from "@/constants";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { useAuth } from "@clerk/expo";
+import { OrderAdminSkeleton } from "src/components/Skeleton";
 import api from "src/constants/api";
 import Toast from "react-native-toast-message";
+import type { Order } from "@/constants/types";
 
 export default function AdminOrders() {
   const { getToken } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   // Status Modal State
   const [statusModalVisible, setStatusModalVisible] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updating, setUpdating] = useState(false);
 
   const STATUSES = [
@@ -36,13 +39,14 @@ export default function AdminOrders() {
     "cancelled",
   ];
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (signal?: AbortSignal) => {
     try {
       const token = await getToken();
       const { data } = await api.get("/orders/admin/all", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       });
       if (data.success) {
         setOrders(data.data);
@@ -61,7 +65,9 @@ export default function AdminOrders() {
   };
 
   useEffect(() => {
-    fetchOrders();
+    const abortController = new AbortController();
+    fetchOrders(abortController.signal);
+    return () => abortController.abort();
   }, []);
 
   const onRefresh = () => {
@@ -69,7 +75,7 @@ export default function AdminOrders() {
     fetchOrders();
   };
 
-  const openStatusModal = (order: any) => {
+  const openStatusModal = (order: Order) => {
     setSelectedOrder(order);
     setStatusModalVisible(true);
   };
@@ -118,16 +124,20 @@ export default function AdminOrders() {
 
   if (loading && !refreshing) {
     return (
-      <View className="flex-1 justify-center items-center bg-surface">
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
+      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+        <View className="px-4 pt-4">
+          <OrderAdminSkeleton />
+          <OrderAdminSkeleton />
+          <OrderAdminSkeleton />
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View className="flex-1 bg-surface">
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       <ScrollView
-        className="flex-1 p-4"
+        className="flex-1 px-4 pt-4"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -137,13 +147,13 @@ export default function AdminOrders() {
             <Text className="text-secondary">No orders found</Text>
           </View>
         ) : (
-          orders.map((order: any) => (
+          orders.map((order) => (
             <View
               key={order._id}
-              className="bg-white p-4 rounded-xl shadow-sm mb-4 border border-gray-100"
+              className="bg-white p-4 rounded-xl shadow-sm mb-4 border border-border"
             >
               <View className="flex-row justify-between mb-2">
-                <Text className="font-medium text-sm text-gray-400 ">
+                <Text className="font-medium text-sm text-secondary">
                   Order ID : #{order._id}
                 </Text>
                 <Text className="text-secondary text-xs">
@@ -151,24 +161,24 @@ export default function AdminOrders() {
                 </Text>
               </View>
 
-              <View className="mb-3 bg-gray-50 p-3 rounded-lg">
+              <View className="mb-3 bg-surface p-3 rounded-lg">
                 <Text className="text-xs text-secondary font-bold mb-1">
                   CUSTOMER
                 </Text>
                 <Text className="text-primary font-medium">
-                  {order.user?.name || "Unknown User"}
+                  {typeof order.user === "object" && order.user ? order.user.name : "Unknown User"}
                 </Text>
                 <Text className="text-secondary text-xs">
-                  {order.user?.email || "No email"}
+                  {typeof order.user === "object" && order.user ? order.user.email : "No email"}
                 </Text>
-                {!order.user && (
-                  <Text className="text-xs text-gray-400 mt-1">
-                    ID: {order.user?._id || "N/A"}
+                {typeof order.user !== "object" && (
+                  <Text className="text-xs text-secondary mt-1">
+                    ID: {order.user || "N/A"}
                   </Text>
                 )}
               </View>
 
-              <View className="mb-3 bg-gray-50 p-3 rounded-lg">
+              <View className="mb-3 bg-surface p-3 rounded-lg">
                 <Text className="text-xs text-secondary font-bold mb-1">
                   SHIPPING ADDRESS
                 </Text>
@@ -186,15 +196,15 @@ export default function AdminOrders() {
                 <Text className="text-xs text-secondary font-bold mb-2">
                   ITEMS
                 </Text>
-                {order.items.map((item: any) => (
+                {order.items.map((item) => (
                   <View
                     key={item._id}
                     className="flex-row justify-between mb-1"
                   >
                     <Text className="text-secondary text-xs flex-1">
-                      {item.quantity}x {item.product?.name || item.name}
+                      {item.quantity}x {typeof item.product === "object" && item.product ? item.product.name : item.name}
                       {item.size && (
-                        <Text className="text-gray-400">
+                        <Text className="text-secondary">
                           {" "}
                           ({item.size || "-"})
                         </Text>
@@ -207,7 +217,7 @@ export default function AdminOrders() {
                 ))}
               </View>
 
-              <View className="flex-row justify-between items-center mt-2 pt-3 border-t border-gray-100">
+              <View className="flex-row justify-between items-center mt-2 pt-3 border-t border-border">
                 <Text className="text-primary font-bold text-lg">
                   ${order.totalAmount.toFixed(2)}
                 </Text>
@@ -236,8 +246,8 @@ export default function AdminOrders() {
       <Modal visible={statusModalVisible} animationType="fade" transparent>
         <TouchableWithoutFeedback onPress={() => setStatusModalVisible(false)}>
           <View className="flex-1 justify-end bg-black/50">
-            <View className="bg-white rounded-t-2xl p-4 max-h-[60%]">
-              <View className="flex-row justify-between items-center mb-4 pb-4 border-b border-gray-100">
+            <View className="bg-white rounded-t-xl p-4 max-h-[60%]">
+              <View className="flex-row justify-between items-center mb-4 pb-4 border-b border-border">
                 <Text className="text-lg font-bold text-primary">
                   Update Order Status
                 </Text>
@@ -262,7 +272,7 @@ export default function AdminOrders() {
                       className={`p-4 rounded-xl mb-2 flex-row justify-between items-center ${
                         selectedOrder?.orderStatus === item
                           ? "bg-primary/10"
-                          : "bg-gray-50"
+                          : "bg-surface"
                       }`}
                       onPress={() => updateStatus(item)}
                     >
@@ -290,6 +300,6 @@ export default function AdminOrders() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }

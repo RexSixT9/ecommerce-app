@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
+import { Types } from "mongoose";
 import Product from "../models/product.model.js";
 import { Wishlist } from "../models/wishlist.model.js";
 
-const getOrCreateWishlist = async (userId: string) => {
+const getOrCreateWishlist = async (userId: Types.ObjectId) => {
   let wishlist = await Wishlist.findOne({ user: userId });
 
   if (!wishlist) {

@@ -16,9 +16,11 @@ import Header from "src/components/Header";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { useAuth } from "@clerk/expo";
 import api from "src/constants/api";
+import EmptyStateCard from "src/components/EmptyStateCard";
+import { AddressSkeleton } from "src/components/Skeleton";
 
 export default function Checkout() {
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
   const { cartTotal, clearCart } = useCart();
   const router = useRouter();
 
@@ -32,7 +34,7 @@ export default function Checkout() {
   const tax = 0.1 * cartTotal;
   const total = cartTotal + shipping + tax;
 
-  const fetchAddress = async () => {
+  const fetchAddress = async (signal?: AbortSignal) => {
     try {
       setPageLoading(true);
       const token = await getToken();
@@ -40,6 +42,7 @@ export default function Checkout() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       });
 
       const addresses: Address[] = data.data;
@@ -83,7 +86,13 @@ export default function Checkout() {
     setLoading(true);
     try {
       const payload = {
-        shippingAddress: selectedAddress,
+        shippingAddress: {
+          street: selectedAddress.street,
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          zipCode: selectedAddress.zipCode,
+          country: selectedAddress.country,
+        },
         notes: "Placed via mobile app",
         paymentMethod: "cash",
       };
@@ -115,13 +124,36 @@ export default function Checkout() {
   };
 
   useEffect(() => {
-    fetchAddress();
+    const abortController = new AbortController();
+    fetchAddress(abortController.signal);
+    return () => abortController.abort();
   }, []);
+
+  if (!isSignedIn) {
+    return (
+      <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
+        <Header title="Checkout" showBack />
+        <View className="flex-1 items-center justify-center px-8">
+          <EmptyStateCard
+            iconName="lock-closed-outline"
+            iconColor={COLORS.primary}
+            title="Sign in required"
+            description="Please sign in to proceed with checkout."
+            actionLabel="Sign In"
+            onActionPress={() => router.push("/(auth)/sign-in")}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (pageLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-surface justify-center items-center">
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
+        <View className="flex-1 px-4 pt-4">
+          <AddressSkeleton />
+          <AddressSkeleton />
+        </View>
       </SafeAreaView>
     );
   }

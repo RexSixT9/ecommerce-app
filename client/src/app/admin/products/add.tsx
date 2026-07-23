@@ -10,8 +10,10 @@ import {
   ActivityIndicator,
   Modal,
   FlatList,
+  Platform,
   TouchableWithoutFeedback,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { COLORS, CATEGORIES } from "@/constants";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
@@ -34,30 +36,50 @@ export default function AddProduct() {
   const [stock, setStock] = useState("");
   const [category, setCategory] = useState("Men");
   const [sizes, setSizes] = useState("");
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<{ uri: string; mimeType: string }[]>([]);
   const [isFeatured, setIsFeatured] = useState(false);
 
   // PICK MULTIPLE IMAGES (MAX 5)
   const pickImages = async () => {
+    if (images.length >= 5) {
+      Toast.show({
+        type: "error",
+        text1: "Image Limit Reached",
+        text2: "You can upload up to 5 product images.",
+      });
+      return;
+    }
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsMultipleSelection: true,
-      selectionLimit: 5,
+      selectionLimit: Math.max(1, 5 - images.length),
       quality: 0.8,
     });
 
     if (!result.canceled) {
-      const uris = result.assets.map((asset) => asset.uri);
-      setImages(uris.slice(0, 5));
+      const newAssets = (result.assets ?? []).map((asset) => ({
+        uri: asset.uri,
+        mimeType: asset.mimeType || "image/jpeg",
+      }));
+      setImages((prev) => [...prev, ...newAssets].slice(0, 5));
     }
   };
 
   const handleSubmit = async () => {
-    if (!name || !price || !category || sizes.length < 1) {
+    if (!name || !price || !description || !category || sizes.length < 1) {
       Toast.show({
         type: "error",
         text1: "Missing Fields",
         text2: "Please fill in all required fields",
+      });
+      return;
+    }
+    if (images.length === 0) {
+      Toast.show({
+        type: "error",
+        text1: "Missing Images",
+        text2: "Please select at least one product image.",
       });
       return;
     }
@@ -81,19 +103,27 @@ export default function AddProduct() {
       });
 
       // Append images to FormData
-      for (const [i, url] of images.entries()) {
-        const fileName = `image_${i}.jpg`;
-        formData.append("images", {
-          uri: url,
-          name: fileName,
-          type: "image/jpeg",
-        } as any);
+      for (const [i, img] of images.entries()) {
+        const ext = img.mimeType.split("/")[1] || "jpg";
+        const fileName = `image_${i}.${ext}`;
+        if (Platform.OS === "web") {
+          const blob = await (await fetch(img.uri)).blob();
+          formData.append(
+            "images",
+            new File([blob], fileName, { type: img.mimeType }),
+          );
+        } else {
+          formData.append("images", {
+            uri: img.uri,
+            name: fileName,
+            type: img.mimeType,
+          } as any);
+        }
       }
 
       const { data } = await api.post("/products", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -113,7 +143,7 @@ export default function AddProduct() {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "Failed to create product. Please try again.",
+        text2: error.response?.data?.message || "Failed to create product. Please try again.",
       });
     } finally {
       setSubmitting(false);
@@ -121,14 +151,15 @@ export default function AddProduct() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-surface p-4">
-      <View className="bg-white p-4 rounded-xl shadow-sm mb-20">
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+    <ScrollView className="flex-1 px-4 pt-4">
+      <View className="bg-white p-4 rounded-xl border border-border mb-20">
         {/* NAME */}
         <Text className="text-secondary text-xs font-bold mb-1 uppercase">
           Product Name *
         </Text>
         <TextInput
-          className="bg-surface p-3 rounded-lg mb-4 text-primary"
+          className="bg-surface p-4 rounded-xl mb-4 text-primary"
           placeholder="e.g. Wireless Headphones"
           value={name}
           onChangeText={setName}
@@ -139,7 +170,7 @@ export default function AddProduct() {
           Price ($) *
         </Text>
         <TextInput
-          className="bg-surface p-3 rounded-lg mb-4 text-primary"
+          className="bg-surface p-4 rounded-xl mb-4 text-primary"
           placeholder="0.00"
           keyboardType="decimal-pad"
           value={price}
@@ -152,7 +183,7 @@ export default function AddProduct() {
         </Text>
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
-          className="bg-surface p-3 rounded-lg mb-4 flex-row justify-between items-center"
+          className="bg-surface p-4 rounded-xl mb-4 flex-row justify-between items-center"
         >
           <Text className="text-primary">{category}</Text>
           <Ionicons name="chevron-down" size={20} color={COLORS.secondary} />
@@ -162,7 +193,7 @@ export default function AddProduct() {
         <Modal visible={modalVisible} animationType="slide" transparent>
           <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
             <View className="flex-1 justify-end bg-black/50">
-              <View className="bg-white rounded-t-2xl p-4 max-h-[50%]">
+              <View className="bg-white rounded-t-xl p-4 max-h-[50%]">
                 <Text className="text-lg font-bold text-center mb-4">
                   Select Category
                 </Text>
@@ -211,7 +242,7 @@ export default function AddProduct() {
           Stock Level
         </Text>
         <TextInput
-          className="bg-surface p-3 rounded-lg mb-4 text-primary"
+          className="bg-surface p-4 rounded-xl mb-4 text-primary"
           placeholder="0"
           keyboardType="number-pad"
           value={stock}
@@ -223,7 +254,7 @@ export default function AddProduct() {
           Sizes (comma separated)
         </Text>
         <TextInput
-          className="bg-surface p-3 rounded-lg mb-4 text-primary"
+          className="bg-surface p-4 rounded-xl mb-4 text-primary"
           placeholder="e.g. S, M, L, XL"
           value={sizes}
           onChangeText={setSizes}
@@ -237,16 +268,16 @@ export default function AddProduct() {
         <TouchableOpacity onPress={pickImages} className="mb-4">
           {images.length > 0 ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {images.map((uri, i) => (
+              {images.map((img, i) => (
                 <Image
                   key={i}
-                  source={{ uri }}
+                  source={{ uri: img.uri }}
                   className="w-32 h-32 rounded-lg mr-2"
                 />
               ))}
             </ScrollView>
           ) : (
-            <View className="w-full h-32 rounded-lg bg-gray-100 justify-center items-center border border-dashed border-gray-300">
+            <View className="w-full h-32 rounded-lg bg-surface justify-center items-center border border-dashed border-border">
               <Ionicons
                 name="cloud-upload-outline"
                 size={32}
@@ -264,7 +295,7 @@ export default function AddProduct() {
           Description
         </Text>
         <TextInput
-          className="bg-surface p-3 rounded-lg mb-6 text-primary h-24"
+          className="bg-surface p-4 rounded-xl mb-6 text-primary h-24"
           multiline
           value={description}
           onChangeText={setDescription}
@@ -284,7 +315,7 @@ export default function AddProduct() {
         <TouchableOpacity
           onPress={handleSubmit}
           disabled={submitting}
-          className={`bg-primary p-4 rounded-xl items-center ${
+          className={`bg-primary py-4 rounded-full items-center ${
             submitting ? "opacity-70" : ""
           }`}
         >
@@ -296,5 +327,6 @@ export default function AddProduct() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }

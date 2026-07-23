@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
   RefreshControl,
   Image,
@@ -16,37 +16,32 @@ import { useAuth } from "@clerk/expo";
 import { ListItemSkeleton } from "src/components/Skeleton";
 import api from "src/constants/api";
 import Toast from "react-native-toast-message";
-import type { Product } from "@/constants/types";
+import type { Banner } from "@/constants/types";
 
-export default function AdminProducts() {
+export default function AdminBanners() {
   const { getToken } = useAuth();
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
 
-  const fetchProducts = async (signal?: AbortSignal) => {
+  const fetchBanners = async (signal?: AbortSignal) => {
     try {
       const token = await getToken();
-      const { data } = await api.get("/products", {
-        params: {
-          limit: 100,
-          showAll: "true",
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const { data } = await api.get("/banners", {
+        params: { showAll: "true" },
+        headers: { Authorization: `Bearer ${token}` },
         signal,
       });
       if (data.success) {
-        setProducts(data.data);
+        setBanners(data.data);
       }
     } catch (error: any) {
-      console.error("Error fetching products:", error);
+      console.error("Error fetching banners:", error);
       Toast.show({
         type: "error",
-        text1: "Failed to Fetch Products",
+        text1: "Failed to Fetch Banners",
         text2: "Something went wrong",
       });
     } finally {
@@ -57,54 +52,48 @@ export default function AdminProducts() {
 
   useEffect(() => {
     const abortController = new AbortController();
-    fetchProducts(abortController.signal);
+    fetchBanners(abortController.signal);
     return () => abortController.abort();
   }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchProducts();
+    fetchBanners();
   };
 
   const performDelete = async (id: string) => {
     try {
       const token = await getToken();
-      const { data } = await api.delete(`/products/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const { data } = await api.delete(`/banners/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (data.success) {
         Toast.show({
           type: "success",
-          text1: "Product Deleted",
-          text2: "The product has been deleted successfully",
+          text1: "Banner Deleted",
+          text2: "The banner has been deleted successfully",
         });
-        fetchProducts();
+        fetchBanners();
       }
     } catch (error: any) {
-      console.error("Error deleting product:", error);
+      console.error("Error deleting banner:", error);
       Toast.show({
         type: "error",
-        text1: "Failed to Delete Product",
+        text1: "Failed to Delete Banner",
         text2: "Something went wrong",
       });
     }
   };
 
-  const deleteProduct = async (id: string) => {
-    Alert.alert(
-      "Delete Product",
-      "Are you sure you want to delete this product?",
-      [
-        { text: "Cancel", style: "cancel" as const },
-        {
-          text: "Delete",
-          style: "destructive" as const,
-          onPress: () => performDelete(id),
-        },
-      ],
-    );
+  const deleteBanner = (id: string) => {
+    Alert.alert("Delete Banner", "Are you sure you want to delete this banner?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => performDelete(id),
+      },
+    ]);
   };
 
   if (loading && !refreshing) {
@@ -123,15 +112,16 @@ export default function AdminProducts() {
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       <View className="p-4 bg-white border-b border-border flex-row justify-between items-center">
         <Text className="text-lg font-semibold text-primary">
-          Total Products ({products.length})
+          Total Banners ({banners.length}/5)
         </Text>
-        <TouchableOpacity
-          onPress={() => router.push("/admin/products/add")}
+        <Pressable
+          onPress={() => router.push("/admin/banners/add" as any)}
           className="bg-primary px-4 py-2 rounded-full flex-row items-center"
+          style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
         >
           <Ionicons name="add" size={20} color="white" />
-          <Text className="text-white font-medium ml-1">Add Product</Text>
-        </TouchableOpacity>
+          <Text className="text-white font-medium ml-1">Add Banner</Text>
+        </Pressable>
       </View>
 
       <ScrollView
@@ -140,63 +130,62 @@ export default function AdminProducts() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {products.length === 0 ? (
+        {banners.length === 0 ? (
           <View className="flex-1 justify-center items-center mt-20">
-            <Text className="text-secondary">No products found</Text>
+            <Text className="text-secondary">No banners found</Text>
           </View>
         ) : (
-          products.map((product) => (
+          banners.map((banner) => (
             <View
-              key={product._id}
+              key={banner._id}
               className="bg-white p-3 rounded-xl border border-border mb-3 flex-row items-center"
             >
               <Image
-                source={{
-                  uri:
-                    product?.images && product.images.length > 0
-                      ? product.images?.[0]
-                      : "https://via.placeholder.com/150",
-                }}
-                className="w-16 h-16 rounded-lg bg-gray-100 mr-3"
+                source={{ uri: banner.image }}
+                className="w-20 h-14 rounded-lg bg-gray-100 mr-3"
                 resizeMode="cover"
               />
 
               <View className="flex-1">
-                <Text
-                  className="font-bold text-primary text-base"
-                  numberOfLines={1}
-                >
-                  {product.name}
+                <Text className="font-bold text-primary text-base" numberOfLines={1}>
+                  {banner.title}
                 </Text>
-                <Text className="text-secondary text-xs mb-1" numberOfLines={1}>
-                  Category : {typeof product.category === "string" ? product.category : product.category?.name || "Others"}
-                </Text>
-                <Text className="text-secondary text-xs mb-1" numberOfLines={1}>
-                  Stock : {product.stock}
-                </Text>
-                <Text className="text-secondary text-xs mb-1" numberOfLines={1}>
-                  Sizes : {product.sizes?.join(", ") || "-"}
-                </Text>
-                <Text className="text-primary font-bold">
-                  ${product.price.toFixed(2)}
-                </Text>
+                {banner.subtitle && (
+                  <Text className="text-secondary text-xs" numberOfLines={1}>
+                    {banner.subtitle}
+                  </Text>
+                )}
+                <View className="flex-row items-center mt-1">
+                  <View
+                    className={`px-2 py-0.5 rounded-full ${banner.isActive ? "bg-green-100" : "bg-surface"}`}
+                  >
+                    <Text
+                      className={`text-xs font-bold ${banner.isActive ? "text-green-700" : "text-secondary"}`}
+                    >
+                      {banner.isActive ? "Active" : "Inactive"}
+                    </Text>
+                  </View>
+                  <Text className="text-secondary text-xs ml-2">
+                    Order: {banner.order}
+                  </Text>
+                </View>
               </View>
 
               <View className="flex-row items-center">
-                <TouchableOpacity
-                  onPress={() =>
-                    router.push(`/admin/products/edit/${product._id}`)
-                  }
+                <Pressable
+                    onPress={() => router.push(`/admin/banners/edit/${banner._id}` as any)}
                   className="p-2 bg-surface rounded-full mr-2"
+                  style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
                 >
                   <Ionicons name="create-outline" size={18} color="#333333" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => deleteProduct(product._id)}
+                </Pressable>
+                <Pressable
+                  onPress={() => deleteBanner(banner._id)}
                   className="p-2 bg-surface rounded-full"
+                  style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
                 >
                   <Ionicons name="trash-outline" size={18} color="#333333" />
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </View>
           ))

@@ -14,6 +14,6 @@ OrderRouter.post("/", protect, createOrder);
 OrderRouter.get("/", protect, getUserOrders);
 OrderRouter.get("/admin/all", protect, authorize("admin"), getAllOrders);
 OrderRouter.get("/:orderId", protect, getOrderById);
-OrderRouter.put("/:orderId", protect, authorize("admin"), updateOrderStatus);
+OrderRouter.put("/:orderId/status", protect, authorize("admin"), updateOrderStatus);
 
 export default OrderRouter;

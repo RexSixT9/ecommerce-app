@@ -2,9 +2,10 @@ import { useState } from "react";
 import {
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   View,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
@@ -85,6 +86,7 @@ export default function SignUpScreen() {
         Toast.show({
           type: "error",
           text1: "Verification incomplete",
+          text2: "Please try again with a new code",
         });
       }
     } catch (err: any) {
@@ -99,22 +101,24 @@ export default function SignUpScreen() {
   };
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-white justify-center"
-      style={{ padding: 28 }}
-    >
+    <SafeAreaView className="flex-1 bg-white justify-center px-6">
       {!pendingVerification ? (
         <>
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.push("/")}
-            className="absolute top-12 z-10"
+            className="absolute top-12 left-6 z-10"
           >
             <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
-          </TouchableOpacity>
+          </Pressable>
 
           {/* Header */}
           <View className="items-center mb-8">
-            <Text className="text-3xl font-bold text-primary mb-2">
+            <Image
+              source={require("../../../assets/logo.png")}
+              className="w-28 h-8 mb-6"
+              resizeMode="contain"
+            />
+            <Text className="text-2xl font-bold text-primary mb-2">
               Create Account
             </Text>
             <Text className="text-secondary">Sign up to get started</Text>
@@ -126,7 +130,7 @@ export default function SignUpScreen() {
             <TextInput
               className="w-full bg-surface p-4 rounded-xl text-primary"
               placeholder="John"
-              placeholderTextColor="#999"
+              placeholderTextColor={COLORS.secondary}
               value={firstName}
               onChangeText={setFirstName}
             />
@@ -138,7 +142,7 @@ export default function SignUpScreen() {
             <TextInput
               className="w-full bg-surface p-4 rounded-xl text-primary"
               placeholder="Doe"
-              placeholderTextColor="#999"
+              placeholderTextColor={COLORS.secondary}
               value={lastName}
               onChangeText={setLastName}
             />
@@ -150,7 +154,7 @@ export default function SignUpScreen() {
             <TextInput
               className="w-full bg-surface p-4 rounded-xl text-primary"
               placeholder="user@example.com"
-              placeholderTextColor="#999"
+              placeholderTextColor={COLORS.secondary}
               autoCapitalize="none"
               keyboardType="email-address"
               value={emailAddress}
@@ -164,7 +168,7 @@ export default function SignUpScreen() {
             <TextInput
               className="w-full bg-surface p-4 rounded-xl text-primary"
               placeholder="********"
-              placeholderTextColor="#999"
+              placeholderTextColor={COLORS.secondary}
               secureTextEntry
               value={password}
               onChangeText={setPassword}
@@ -172,17 +176,18 @@ export default function SignUpScreen() {
           </View>
 
           {/* Submit */}
-          <TouchableOpacity
+          <Pressable
             className="w-full bg-primary py-4 rounded-full items-center mb-10"
             onPress={onSignUpPress}
             disabled={loading}
+            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
               <Text className="text-white font-bold text-lg">Continue</Text>
             )}
-          </TouchableOpacity>
+          </Pressable>
 
           {/* Footer */}
           <View className="flex-row justify-center">
@@ -194,16 +199,20 @@ export default function SignUpScreen() {
         </>
       ) : (
         <>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="absolute top-12 z-10"
+          <Pressable
+            onPress={() => {
+              setPendingVerification(false);
+              setCode("");
+              setPassword("");
+            }}
+            className="absolute top-12 left-6 z-10"
           >
             <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
-          </TouchableOpacity>
+          </Pressable>
 
           {/* Verification */}
           <View className="items-center mb-8">
-            <Text className="text-3xl font-bold text-primary mb-2">
+            <Text className="text-2xl font-bold text-primary mb-2">
               Verify Email
             </Text>
             <Text className="text-secondary text-center">
@@ -215,24 +224,25 @@ export default function SignUpScreen() {
             <TextInput
               className="w-full bg-surface p-4 rounded-xl text-primary text-center tracking-widest"
               placeholder="123456"
-              placeholderTextColor="#999"
+              placeholderTextColor={COLORS.secondary}
               keyboardType="number-pad"
               value={code}
               onChangeText={setCode}
             />
           </View>
 
-          <TouchableOpacity
+          <Pressable
             className="w-full bg-primary py-4 rounded-full items-center"
             onPress={onVerifyPress}
             disabled={loading}
+            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
               <Text className="text-white font-bold text-lg">Verify</Text>
             )}
-          </TouchableOpacity>
+          </Pressable>
         </>
       )}
     </SafeAreaView>

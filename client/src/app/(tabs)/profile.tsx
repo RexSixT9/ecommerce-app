@@ -83,14 +83,15 @@ export default function Profile() {
             </View>
 
             {/* Menu */}
-            <View className="bg-white rounded-xl border border-gray-100/50 p-2 mb-4">
+            <View className="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
               {PROFILE_MENU.map((item, index) => (
                 <Pressable
                   key={item.id}
-                  className={`flex-row items-center p-4 ${index !== PROFILE_MENU.length - 1 ? "border-b border-gray-100" : ""}`}
+                  className={`flex-row items-center px-4 py-4 ${index !== PROFILE_MENU.length - 1 ? "border-b border-border" : ""}`}
                   onPress={() => router.push(item.route as any)}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.95 : 1 })}
                 >
-                  <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center mr-4">
+                  <View className="w-10 h-10 rounded-full bg-surface items-center justify-center mr-4">
                     <Ionicons
                       name={item.icon as any}
                       size={20}
@@ -101,10 +102,9 @@ export default function Profile() {
                     {item.title}
                   </Text>
                   <Ionicons
-                    name="chevron-forward"
+                    name="chevron-forward-outline"
                     size={20}
                     color={COLORS.secondary}
-                    className="ml-auto"
                   />
                 </Pressable>
               ))}
@@ -112,10 +112,12 @@ export default function Profile() {
 
             {/* Logout Button */}
             <Pressable
-              className="flex-row items-center p-4 rounded-xl justify-center bg-accent/10 border border-accent/30"
+              className="flex-row items-center justify-center py-4 rounded-xl border border-accent/30 bg-accent/5"
               onPress={handleLogout}
+              style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
             >
-              <Text className="text-red-500 ml-2 font-bold">Logout</Text>
+              <Ionicons name="log-out-outline" size={20} color={COLORS.accent} />
+              <Text className="text-accent font-bold ml-2">Logout</Text>
             </Pressable>
           </>
         )}

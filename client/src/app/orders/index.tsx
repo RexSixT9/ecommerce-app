@@ -61,7 +61,7 @@ export default function Orders() {
                     <OrderCardSkeleton />
                     <OrderCardSkeleton />
                 </View>
-            ) : orders.length === 0 ? (
+            ) : !isSignedIn ? (
                 <View className="flex-1 items-center justify-center px-8">
                     <EmptyStateCard
                         iconName="lock-closed-outline"
@@ -70,6 +70,17 @@ export default function Orders() {
                         description="Please sign in to view your orders and track deliveries."
                         actionLabel="Sign In"
                         onActionPress={() => router.push("/(auth)/sign-in")}
+                    />
+                </View>
+            ) : orders.length === 0 ? (
+                <View className="flex-1 items-center justify-center px-8">
+                    <EmptyStateCard
+                        iconName="receipt-outline"
+                        iconColor={COLORS.primary}
+                        title="No orders yet"
+                        description="You haven't placed any orders yet. Start shopping to see your orders here."
+                        actionLabel="Browse Products"
+                        onActionPress={() => router.push("/")}
                     />
                 </View>
             ) : (
@@ -84,9 +95,9 @@ export default function Orders() {
                             onPress={() => router.push(`/orders/${item._id}`)}
                             style={({ pressed }) => ({ opacity: pressed ? 0.95 : 1 })}
                         >
-                            <View className="flex-row justify-between mb-2">
-                                <Text className="text-primary font-bold">Order #{item.orderNumber}</Text>
-                                <Text className="text-secondary text-sm">{formatDate(item.createdAt)}</Text>
+                            <View className="mb-2">
+                                <Text className="text-primary font-bold" numberOfLines={1}>Order #{item.orderNumber}</Text>
+                                <Text className="text-secondary text-sm mt-0.5">{formatDate(item.createdAt)}</Text>
                             </View>
 
                             {/* Status Badges */}
@@ -97,9 +108,9 @@ export default function Orders() {
                                     </Text>
                                 </View>
 
-                                <View className={`px-2 py-1 rounded-full ${item.paymentStatus === 'paid' ? 'bg-green-100' : 'bg-gray-100'
+                                <View className={`px-2 py-1 rounded-full ${item.paymentStatus === 'paid' ? 'bg-green-100' : 'bg-surface'
                                     }`}>
-                                    <Text className={`text-xs font-bold capitalize ${item.paymentStatus === 'paid' ? 'text-green-700' : 'text-gray-700'
+                                    <Text className={`text-xs font-bold capitalize ${item.paymentStatus === 'paid' ? 'text-green-700' : 'text-secondary'
                                         }`}>
                                         {item.paymentStatus}
                                     </Text>
@@ -124,7 +135,7 @@ export default function Orders() {
                                                     resizeMode="cover"
                                                 />
                                             ) : (
-                                                <View className="w-12 h-12 bg-gray-200 rounded-md justify-center items-center">
+                                                <View className="w-12 h-12 bg-surface rounded-md justify-center items-center">
                                                     <Ionicons name="image-outline" size={20} color={COLORS.secondary} />
                                                 </View>
                                             )}

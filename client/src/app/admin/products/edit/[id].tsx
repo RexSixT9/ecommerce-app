@@ -220,13 +220,14 @@ export default function EditProduct() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-    <ScrollView className="flex-1 px-4 pt-4">
+    <ScrollView className="flex-1 px-4 pt-4 pb-8">
       <View className="bg-white p-4 rounded-xl border border-border mb-20">
         <Text className="text-secondary text-xs font-bold mb-1 uppercase">
           Product Name *
         </Text>
         <TextInput
           className="bg-surface p-4 rounded-xl mb-4 text-primary"
+          placeholder="e.g. Wireless Headphones"
           value={name}
           onChangeText={setName}
         />
@@ -236,6 +237,7 @@ export default function EditProduct() {
         </Text>
         <TextInput
           className="bg-surface p-4 rounded-xl mb-4 text-primary"
+          placeholder="0.00"
           keyboardType="decimal-pad"
           value={price}
           onChangeText={setPrice}
@@ -246,6 +248,7 @@ export default function EditProduct() {
         </Text>
         <TextInput
           className="bg-surface p-4 rounded-xl mb-4 text-primary"
+          placeholder="0"
           keyboardType="number-pad"
           value={stock}
           onChangeText={setStock}
@@ -361,6 +364,7 @@ export default function EditProduct() {
           className="bg-surface p-4 rounded-xl mb-6 text-primary h-24"
           multiline
           textAlignVertical="top"
+          placeholder="e.g. A comfortable cotton t-shirt with modern fit"
           value={description}
           onChangeText={setDescription}
         />

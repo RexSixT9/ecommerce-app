@@ -33,7 +33,7 @@ export default function AdminLayout() {
         },
         headerTintColor: COLORS.primary,
         headerTitleStyle: {
-          fontWeight: "bold",
+          fontWeight: "medium",
         },
         headerShadowVisible: false,
         tabBarActiveTintColor: COLORS.primary,
@@ -44,7 +44,6 @@ export default function AdminLayout() {
             className="mr-4 flex-row items-center"
           >
             <Ionicons name="log-out-outline" size={24} color={COLORS.primary} />
-            <Text className="ml-1 text-primary font-medium">Exit</Text>
           </TouchableOpacity>
         ),
       }}

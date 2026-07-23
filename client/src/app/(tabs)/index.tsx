@@ -8,7 +8,7 @@ import {
   useWindowDimensions,
   Pressable,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/Header";
 import { CATEGORIES } from "@/constants";
@@ -70,12 +70,26 @@ export default function Home() {
     }
   };
 
+  const flatListRef = useRef<FlatList>(null);
+
   useEffect(() => {
     const abortController = new AbortController();
     fetchBanners(abortController.signal);
     fetchProducts(abortController.signal);
     return () => abortController.abort();
   }, []);
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+
+    const interval = setInterval(() => {
+      const nextIndex = (activeBannerIndex + 1) % banners.length;
+      flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+      setActiveBanner(nextIndex);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [activeBannerIndex, banners.length]);
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
@@ -88,6 +102,7 @@ export default function Home() {
         ) : banners.length > 0 ? (
           <View className="-mx-4">
             <FlatList
+              ref={flatListRef}
               data={banners}
               keyExtractor={(item) => item._id}
               horizontal
@@ -106,6 +121,12 @@ export default function Home() {
                   event.nativeEvent.contentOffset.x / width,
                 );
                 setActiveBanner(Math.max(0, Math.min(index, banners.length - 1)));
+              }}
+              onScrollToIndexFailed={(info) => {
+                flatListRef.current?.scrollToOffset({
+                  offset: info.averageItemLength * info.index,
+                  animated: true,
+                });
               }}
               renderItem={({ item }) => (
                 <Pressable

@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS, getStatusColor } from "@/constants";
+import Toast from "react-native-toast-message";
 import { useAuth } from "@clerk/expo/";
 import { StatCardSkeleton, OrderAdminSkeleton } from "src/components/Skeleton";
 import api from "src/constants/api";
@@ -38,6 +39,11 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error("Error fetching admin stats:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to Load Dashboard",
+        text2: "Something went wrong",
+      });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -79,7 +85,7 @@ export default function AdminDashboard() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
     <ScrollView
-      className="flex-1 px-4 pt-4"
+      className="flex-1 px-4 pt-4 pb-8"
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -127,7 +133,7 @@ export default function AdminDashboard() {
                   </Text>
                 </View>
                 <View
-                  className={`px-3 py-1.5 rounded-full ${getStatusColor(order.orderStatus)}`}
+                  className={`px-4 py-2 rounded-full ${getStatusColor(order.orderStatus)}`}
                 >
                   <Text className="text-[10px] font-bold uppercase">
                     {order.orderStatus}

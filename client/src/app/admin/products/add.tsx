@@ -152,7 +152,7 @@ export default function AddProduct() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-    <ScrollView className="flex-1 px-4 pt-4">
+    <ScrollView className="flex-1 px-4 pt-4 pb-8">
       <View className="bg-white p-4 rounded-xl border border-border mb-20">
         {/* NAME */}
         <Text className="text-secondary text-xs font-bold mb-1 uppercase">
@@ -297,6 +297,8 @@ export default function AddProduct() {
         <TextInput
           className="bg-surface p-4 rounded-xl mb-6 text-primary h-24"
           multiline
+          textAlignVertical="top"
+          placeholder="e.g. A comfortable cotton t-shirt with modern fit"
           value={description}
           onChangeText={setDescription}
         />

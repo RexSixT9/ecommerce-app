@@ -135,13 +135,13 @@ export default function AdminProducts() {
       </View>
 
       <ScrollView
-        className="flex-1 px-4 pt-4"
+        className="flex-1 px-4 pt-4 pb-8"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         {products.length === 0 ? (
-          <View className="flex-1 justify-center items-center mt-20">
+          <View className="min-h-[400px] justify-center items-center">
             <Text className="text-secondary">No products found</Text>
           </View>
         ) : (
@@ -150,16 +150,17 @@ export default function AdminProducts() {
               key={product._id}
               className="bg-white p-3 rounded-xl border border-border mb-3 flex-row items-center"
             >
-              <Image
-                source={{
-                  uri:
-                    product?.images && product.images.length > 0
-                      ? product.images?.[0]
-                      : "https://via.placeholder.com/150",
-                }}
-                className="w-16 h-16 rounded-lg bg-gray-100 mr-3"
-                resizeMode="cover"
-              />
+              {product?.images && product.images.length > 0 ? (
+                <Image
+                  source={{ uri: product.images[0] }}
+                  className="w-16 h-16 rounded-lg bg-surface mr-3"
+                  resizeMode="cover"
+                />
+              ) : (
+                <View className="w-16 h-16 rounded-lg bg-surface mr-3 items-center justify-center">
+                  <Ionicons name="image-outline" size={24} color={COLORS.secondary} />
+                </View>
+              )}
 
               <View className="flex-1">
                 <Text
@@ -189,13 +190,13 @@ export default function AdminProducts() {
                   }
                   className="p-2 bg-surface rounded-full mr-2"
                 >
-                  <Ionicons name="create-outline" size={18} color="#333333" />
+                  <Ionicons name="create-outline" size={18} color={COLORS.secondary} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => deleteProduct(product._id)}
                   className="p-2 bg-surface rounded-full"
                 >
-                  <Ionicons name="trash-outline" size={18} color="#333333" />
+                  <Ionicons name="trash-outline" size={18} color={COLORS.secondary} />
                 </TouchableOpacity>
               </View>
             </View>

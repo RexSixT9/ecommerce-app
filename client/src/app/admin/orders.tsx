@@ -43,6 +43,7 @@ export default function AdminOrders() {
     try {
       const token = await getToken();
       const { data } = await api.get("/orders/admin/all", {
+        params: { limit: 1000 },
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -84,6 +85,7 @@ export default function AdminOrders() {
     if (!selectedOrder) return;
 
     try {
+      setUpdating(true);
       const token = await getToken();
       const { data } = await api.put(
         `/orders/${selectedOrder._id}/status`,
@@ -137,13 +139,13 @@ export default function AdminOrders() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       <ScrollView
-        className="flex-1 px-4 pt-4"
+        className="flex-1 px-4 pt-4 pb-8"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         {orders.length === 0 ? (
-          <View className="flex-1 justify-center items-center mt-20">
+          <View className="min-h-[400px] justify-center items-center">
             <Text className="text-secondary">No orders found</Text>
           </View>
         ) : (

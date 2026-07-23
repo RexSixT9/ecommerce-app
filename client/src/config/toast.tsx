@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { COLORS } from "../constants";
 
@@ -15,17 +16,21 @@ const CustomToast: React.FC<CustomToastProps> = ({
   text2,
   icon = "checkmark-circle",
   accentColor = COLORS.success,
-}) => (
-  <View style={styles.container}>
-    <View style={[styles.iconCircle, { backgroundColor: accentColor + "25" }]}>
-      <Ionicons name={icon as any} size={20} color={accentColor} />
+}) => {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View style={[styles.container, { marginTop: insets.top + 8 }]}>
+      <View style={[styles.iconCircle, { backgroundColor: accentColor + "25" }]}>
+        <Ionicons name={icon as any} size={20} color={accentColor} />
+      </View>
+      <View style={styles.textContainer}>
+        {text1 ? <Text style={styles.text1} numberOfLines={1}>{text1}</Text> : null}
+        {text2 ? <Text style={styles.text2} numberOfLines={1}>{text2}</Text> : null}
+      </View>
     </View>
-    <View style={styles.textContainer}>
-      {text1 ? <Text style={styles.text1} numberOfLines={1}>{text1}</Text> : null}
-      {text2 ? <Text style={styles.text2} numberOfLines={2}>{text2}</Text> : null}
-    </View>
-  </View>
-);
+  );
+};
 
 export const toastConfig = {
   success: (props: any) => (
@@ -65,7 +70,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     borderRadius: 9999,
     marginHorizontal: 16,
-    marginTop: 60,
+    marginTop: 0,
     paddingVertical: 14,
     paddingHorizontal: 14,
     shadowColor: COLORS.primary,

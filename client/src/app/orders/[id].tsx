@@ -7,7 +7,7 @@ import Header from "@/components/Header";
 import { COLORS } from "@/constants";
 import type { Order, Product } from "@/constants/types";
 import { useAuth } from "@clerk/expo";
-import { ProductDetailSkeleton } from "src/components/Skeleton";
+import { OrderDetailSkeleton } from "src/components/Skeleton";
 import api from "src/constants/api";
 
 export default function OrderDetails() {
@@ -43,15 +43,15 @@ export default function OrderDetails() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-surface">
-        <ProductDetailSkeleton />
+      <SafeAreaView className="flex-1 bg-white">
+        <OrderDetailSkeleton />
       </SafeAreaView>
     );
   }
 
   if (!order) {
     return (
-      <SafeAreaView className="flex-1 bg-surface justify-center items-center">
+      <SafeAreaView className="flex-1 bg-white justify-center items-center">
         <Text>Order not found</Text>
       </SafeAreaView>
     );
@@ -92,31 +92,32 @@ export default function OrderDetails() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-surface" edges={["top"]}>
-      <Header title={`Order #${order.orderNumber}`} showBack />
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+      <Header title="Order Details" showBack />
 
-      <ScrollView className="flex-1 px-4 pt-4">
+      <ScrollView className="flex-1 px-4 pt-4" contentContainerStyle={{ paddingBottom: 32 }}>
         {/* Order Status */}
-        <View className="bg-white p-4 rounded-xl mb-4 border border-gray-100">
+        <View className="bg-white p-4 rounded-xl mb-4 border border-border shadow-sm">
           <Text className="text-lg font-bold text-primary mb-4">
             Order Status
           </Text>
+          <Text className="text-sm text-secondary mb-4">Order #{order.orderNumber}</Text>
 
           {ORDER_STEPS.map((step, index) => (
             <View key={step.title} className="flex-row mb-4 last:mb-0">
               <View className="items-center mr-4">
                 <View
-                  className={`w-3 h-3 rounded-full ${step.completed ? "bg-primary" : "bg-gray-300"}`}
+                  className={`w-3 h-3 rounded-full ${step.completed ? "bg-primary" : "bg-gray-200"}`}
                 />
                 {index !== ORDER_STEPS.length - 1 && (
                   <View
-                    className={`w-0.5 h-full ${step.completed ? "bg-primary" : "bg-gray-300"} absolute top-3`}
+                    className={`w-0.5 h-full ${step.completed ? "bg-primary" : "bg-gray-200"} absolute top-3`}
                   />
                 )}
               </View>
               <View className="pb-4">
                 <Text
-                  className={`font-bold ${step.completed ? "text-primary" : "text-gray-400"}`}
+                  className={`font-bold ${step.completed ? "text-primary" : "text-secondary"}`}
                 >
                   {step.title}
                 </Text>
@@ -129,7 +130,7 @@ export default function OrderDetails() {
         </View>
 
         {/* Items */}
-        <View className="bg-white p-4 rounded-xl mb-4 border border-gray-100">
+        <View className="bg-white p-4 rounded-xl mb-4 border border-border shadow-sm">
           <Text className="text-lg font-bold text-primary mb-4">Products</Text>
           {order.items.map((item, index: number) => {
             const productData = typeof item.product === "string" ? null : (item.product as Product);
@@ -138,15 +139,19 @@ export default function OrderDetails() {
             return (
               <View
                 key={item._id ?? productData?._id ?? index}
-                className={`flex-row ${index !== order.items.length - 1 && "border-b border-gray-100 pb-4 mb-4"}`}
+                className={`flex-row ${index !== order.items.length - 1 && "border-b border-border pb-4 mb-4"}`}
               >
-                {image && (
-                  <Image
-                    source={{ uri: image }}
-                    className="w-16 h-16 rounded-lg bg-gray-100"
-                    resizeMode="contain"
-                  />
-                )}
+                <View className="w-16 h-16 rounded-lg bg-surface items-center justify-center">
+                  {image ? (
+                    <Image
+                      source={{ uri: image }}
+                      className="w-full h-full rounded-lg"
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <Ionicons name="image-outline" size={20} color={COLORS.secondary} />
+                  )}
+                </View>
                 <View className="flex-1 ml-3 justify-center">
                   <Text className="text-primary font-medium" numberOfLines={1}>
                     {item.name}
@@ -169,7 +174,7 @@ export default function OrderDetails() {
         </View>
 
         {/* Shipping Details */}
-        <View className="bg-white p-4 rounded-xl mb-4 border border-gray-100">
+        <View className="bg-white p-4 rounded-xl mb-4 border border-border shadow-sm">
           <Text className="text-lg font-bold text-primary mb-2">
             Shipping Details
           </Text>
@@ -187,7 +192,7 @@ export default function OrderDetails() {
         </View>
 
         {/* Payment Summary */}
-        <View className="bg-white p-4 rounded-xl mb-8 border border-gray-100">
+        <View className="bg-white p-4 rounded-xl mb-8 border border-border shadow-sm">
           <Text className="text-lg font-bold text-primary mb-4">
             Payment Summary
           </Text>

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {
   ScrollView,
   Text,
-  Pressable,
+  TouchableOpacity,
   View,
   RefreshControl,
   Image,
@@ -114,24 +114,24 @@ export default function AdminBanners() {
         <Text className="text-lg font-semibold text-primary">
           Total Banners ({banners.length}/5)
         </Text>
-        <Pressable
+        <TouchableOpacity
           onPress={() => router.push("/admin/banners/add" as any)}
           className="bg-primary px-4 py-2 rounded-full flex-row items-center"
-          style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+          activeOpacity={0.8}
         >
           <Ionicons name="add" size={20} color="white" />
           <Text className="text-white font-medium ml-1">Add Banner</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
-        className="flex-1 px-4 pt-4"
+        className="flex-1 px-4 pt-4 pb-8"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         {banners.length === 0 ? (
-          <View className="flex-1 justify-center items-center mt-20">
+          <View className="min-h-[400px] justify-center items-center">
             <Text className="text-secondary">No banners found</Text>
           </View>
         ) : (
@@ -140,11 +140,17 @@ export default function AdminBanners() {
               key={banner._id}
               className="bg-white p-3 rounded-xl border border-border mb-3 flex-row items-center"
             >
-              <Image
-                source={{ uri: banner.image }}
-                className="w-20 h-14 rounded-lg bg-gray-100 mr-3"
-                resizeMode="cover"
-              />
+              {banner.image ? (
+                <Image
+                  source={{ uri: banner.image }}
+                  className="w-20 h-14 rounded-lg bg-surface mr-3"
+                  resizeMode="cover"
+                />
+              ) : (
+                <View className="w-20 h-14 rounded-lg bg-surface mr-3 items-center justify-center">
+                  <Ionicons name="image-outline" size={20} color={COLORS.secondary} />
+                </View>
+              )}
 
               <View className="flex-1">
                 <Text className="font-bold text-primary text-base" numberOfLines={1}>
@@ -157,10 +163,10 @@ export default function AdminBanners() {
                 )}
                 <View className="flex-row items-center mt-1">
                   <View
-                    className={`px-2 py-0.5 rounded-full ${banner.isActive ? "bg-green-100" : "bg-surface"}`}
+                    className={`px-2 py-0.5 rounded-full ${banner.isActive ? "bg-primary/10" : "bg-surface"}`}
                   >
                     <Text
-                      className={`text-xs font-bold ${banner.isActive ? "text-green-700" : "text-secondary"}`}
+                      className={`text-xs font-bold ${banner.isActive ? "text-primary" : "text-secondary"}`}
                     >
                       {banner.isActive ? "Active" : "Inactive"}
                     </Text>
@@ -172,20 +178,20 @@ export default function AdminBanners() {
               </View>
 
               <View className="flex-row items-center">
-                <Pressable
+                <TouchableOpacity
                     onPress={() => router.push(`/admin/banners/edit/${banner._id}` as any)}
                   className="p-2 bg-surface rounded-full mr-2"
-                  style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+                  activeOpacity={0.8}
                 >
-                  <Ionicons name="create-outline" size={18} color="#333333" />
-                </Pressable>
-                <Pressable
+                  <Ionicons name="create-outline" size={18} color={COLORS.secondary} />
+                </TouchableOpacity>
+                <TouchableOpacity
                   onPress={() => deleteBanner(banner._id)}
                   className="p-2 bg-surface rounded-full"
-                  style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+                  activeOpacity={0.8}
                 >
-                  <Ionicons name="trash-outline" size={18} color="#333333" />
-                </Pressable>
+                  <Ionicons name="trash-outline" size={18} color={COLORS.secondary} />
+                </TouchableOpacity>
               </View>
             </View>
           ))

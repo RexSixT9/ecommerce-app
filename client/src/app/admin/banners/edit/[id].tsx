@@ -17,7 +17,7 @@ import { Ionicons } from "@react-native-vector-icons/ionicons";
 import SkeletonBlock from "src/components/Skeleton";
 import * as ImagePicker from "expo-image-picker";
 import DateTimePicker, {
-  DateTimePickerEvent,
+  DateTimePickerChangeEvent,
 } from "@react-native-community/datetimepicker";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@clerk/expo";
@@ -85,14 +85,20 @@ export default function EditBanner() {
     }
   };
 
-  const onStartDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShowStartPicker(Platform.OS === "ios");
-    if (selectedDate) setStartDate(selectedDate);
+  const onStartDateValueChange = (_event: DateTimePickerChangeEvent, selectedDate: Date) => {
+    setStartDate(selectedDate);
   };
 
-  const onEndDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShowEndPicker(Platform.OS === "ios");
-    if (selectedDate) setEndDate(selectedDate);
+  const onStartDateDismiss = () => {
+    setShowStartPicker(false);
+  };
+
+  const onEndDateValueChange = (_event: DateTimePickerChangeEvent, selectedDate: Date) => {
+    setEndDate(selectedDate);
+  };
+
+  const onEndDateDismiss = () => {
+    setShowEndPicker(false);
   };
 
   const formatDate = (date: Date | null) => {
@@ -195,7 +201,7 @@ export default function EditBanner() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-    <ScrollView className="flex-1 px-4 pt-4">
+    <ScrollView className="flex-1 px-4 pt-4 pb-8">
       <View className="bg-white p-4 rounded-xl border border-border mb-20">
         {/* Image */}
         <Text className="text-secondary text-xs font-bold mb-1 uppercase">Banner Image</Text>
@@ -267,7 +273,8 @@ export default function EditBanner() {
             value={startDate || new Date()}
             mode="date"
             display={Platform.OS === "ios" ? "spinner" : "default"}
-            onChange={onStartDateChange}
+            onValueChange={onStartDateValueChange}
+            onDismiss={onStartDateDismiss}
           />
         )}
 
@@ -287,7 +294,8 @@ export default function EditBanner() {
             value={endDate || new Date()}
             mode="date"
             display={Platform.OS === "ios" ? "spinner" : "default"}
-            onChange={onEndDateChange}
+            onValueChange={onEndDateValueChange}
+            onDismiss={onEndDateDismiss}
           />
         )}
 

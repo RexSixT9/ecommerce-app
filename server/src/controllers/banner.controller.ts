@@ -102,13 +102,25 @@ export const createBanner = async (req: Request, res: Response) => {
       });
     }
 
+    const orderValue = order !== undefined ? Number(order) : count + 1;
+
+    if (order !== undefined) {
+      const existingBanner = await Banner.findOne({ order: orderValue });
+      if (existingBanner) {
+        return res.status(400).json({
+          success: false,
+          message: `Order ${orderValue} is already taken by another banner. Please choose a different order.`,
+        });
+      }
+    }
+
     const bannerData: Record<string, any> = {
       image,
       title: title.trim(),
       subtitle: subtitle?.trim(),
       link,
       isActive: isActive === undefined ? true : isActive === "true" || isActive === true,
-      order: order !== undefined ? Number(order) : count + 1,
+      order: orderValue,
     };
 
     if (startDate) {
@@ -156,7 +168,17 @@ export const updateBanner = async (req: Request, res: Response) => {
     if (isActive !== undefined) {
       updates.isActive = isActive === "true" || isActive === true;
     }
-    if (order !== undefined) updates.order = Number(order);
+    if (order !== undefined) {
+      const orderValue = Number(order);
+      const duplicate = await Banner.findOne({ order: orderValue, _id: { $ne: req.params.id } });
+      if (duplicate) {
+        return res.status(400).json({
+          success: false,
+          message: `Order ${orderValue} is already taken by another banner. Please choose a different order.`,
+        });
+      }
+      updates.order = orderValue;
+    }
 
     if (startDate !== undefined && startDate !== "") {
       const parsed = new Date(startDate);

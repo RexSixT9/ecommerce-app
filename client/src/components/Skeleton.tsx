@@ -212,12 +212,60 @@ export function OrderAdminSkeleton() {
   );
 }
 
-export function ListSkeleton({ count = 4 }: { count?: number }) {
+export function OrderDetailSkeleton() {
   return (
     <View className="px-4 pt-4">
-      {Array.from({ length: count }).map((_, i) => (
-        <ListItemSkeleton key={i} />
-      ))}
+      <View className="bg-white p-4 rounded-xl mb-4 border border-border shadow-sm">
+        <SkeletonBlock width="50%" height={22} />
+        <SkeletonBlock width="35%" height={14} className="mt-2 mb-4" />
+        {Array.from({ length: 4 }).map((_, i) => (
+          <View key={i} className="flex-row mb-4">
+            <View className="items-center mr-4">
+              <SkeletonBlock width={12} height={12} borderRadius={6} />
+              {i < 3 && <SkeletonBlock width={2} height={24} className="mt-1" />}
+            </View>
+            <View className="flex-1 gap-1">
+              <SkeletonBlock width="60%" height={16} />
+              {i === 0 && <SkeletonBlock width="40%" height={12} />}
+            </View>
+          </View>
+        ))}
+      </View>
+
+      <View className="bg-white p-4 rounded-xl mb-4 border border-border shadow-sm">
+        <SkeletonBlock width="35%" height={22} className="mb-4" />
+        {Array.from({ length: 2 }).map((_, i) => (
+          <View key={i} className="flex-row mb-4">
+            <SkeletonBlock width={64} height={64} borderRadius={8} />
+            <View className="flex-1 ml-3 justify-center gap-2">
+              <SkeletonBlock width="70%" height={16} />
+              <SkeletonBlock width="30%" height={14} />
+              <View className="flex-row justify-between">
+                <SkeletonBlock width="25%" height={16} />
+                <SkeletonBlock width="20%" height={14} />
+              </View>
+            </View>
+          </View>
+        ))}
+      </View>
+
+      <View className="bg-white p-4 rounded-xl mb-4 border border-border shadow-sm">
+        <SkeletonBlock width="45%" height={22} className="mb-3" />
+        <View className="flex-row items-center">
+          <SkeletonBlock width={20} height={20} borderRadius={10} />
+          <SkeletonBlock width="75%" height={14} className="ml-2" />
+        </View>
+      </View>
+
+      <View className="bg-white p-4 rounded-xl mb-8 border border-border shadow-sm">
+        <SkeletonBlock width="45%" height={22} className="mb-4" />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <View key={i} className="flex-row justify-between mb-2">
+            <SkeletonBlock width="35%" height={16} />
+            <SkeletonBlock width="25%" height={16} />
+          </View>
+        ))}
+      </View>
     </View>
   );
 }

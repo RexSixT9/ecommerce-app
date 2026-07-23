@@ -7,17 +7,16 @@ import {
   TouchableOpacity,
   useWindowDimensions,
   Pressable,
-  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/Header";
-import { BANNERS } from "@/assets/assets";
 import { CATEGORIES } from "@/constants";
 import CategoryItem from "@/components/CategoryItem";
 import { router } from "expo-router";
-import { Product } from "@/constants/types";
+import { Product, Banner } from "@/constants/types";
 import ProductCard from "@/components/ProductCard";
+import { ProductGridSkeleton } from "@/components/Skeleton";
 import api from "src/constants/api";
 import Toast from "react-native-toast-message";
 
@@ -25,10 +24,28 @@ export default function Home() {
   const { width } = useWindowDimensions();
   const BANNER_CARD_WIDTH = width - 32;
   const [activeBannerIndex, setActiveBanner] = useState(0);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [bannerLoading, setBannerLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   const categories = [{ id: "all", name: "All", icon: "grid" }, ...CATEGORIES];
+
+  const fetchBanners = async (signal?: AbortSignal) => {
+    try {
+      setBannerLoading(true);
+      const { data } = await api.get("/banners", { signal });
+      if (data.success) {
+        setBanners(data.data);
+      }
+    } catch (error: any) {
+      if (error.name !== "CanceledError") {
+        console.error("Failed to fetch banners:", error);
+      }
+    } finally {
+      setBannerLoading(false);
+    }
+  };
 
   const fetchProducts = async (signal?: AbortSignal) => {
     try {
@@ -55,6 +72,7 @@ export default function Home() {
 
   useEffect(() => {
     const abortController = new AbortController();
+    fetchBanners(abortController.signal);
     fetchProducts(abortController.signal);
     return () => abortController.abort();
   }, []);
@@ -65,73 +83,87 @@ export default function Home() {
 
       <ScrollView className="flex-1 px-4 pt-4" showsVerticalScrollIndicator={false}>
         {/* Banners */}
-        <View className="-mx-4">
-          <FlatList
-            data={BANNERS}
-            keyExtractor={(item) => item.id.toString()}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-            decelerationRate="fast"
-            snapToInterval={width}
-            snapToAlignment="start"
-            bounces={false}
-            overScrollMode="never"
-            removeClippedSubviews
-            style={{ width }}
-            contentContainerStyle={{}}
-            onMomentumScrollEnd={(event) => {
-              const index = Math.round(
-                event.nativeEvent.contentOffset.x / width,
-              );
-              setActiveBanner(Math.max(0, Math.min(index, BANNERS.length - 1)));
-            }}
-            renderItem={({ item }) => (
-              <View style={{ width }} className="h-48 justify-center">
-                <View
-                  style={{ width: BANNER_CARD_WIDTH }}
-                  className="mx-4 h-48 relative bg-gray-200 overflow-hidden rounded-xl"
+        {bannerLoading ? (
+          <View className="bg-surface/50 h-48 rounded-xl mb-4" />
+        ) : banners.length > 0 ? (
+          <View className="-mx-4">
+            <FlatList
+              data={banners}
+              keyExtractor={(item) => item._id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              pagingEnabled
+              decelerationRate="fast"
+              snapToInterval={width}
+              snapToAlignment="start"
+              bounces={false}
+              overScrollMode="never"
+              removeClippedSubviews
+              style={{ width }}
+              contentContainerStyle={{}}
+              onMomentumScrollEnd={(event) => {
+                const index = Math.round(
+                  event.nativeEvent.contentOffset.x / width,
+                );
+                setActiveBanner(Math.max(0, Math.min(index, banners.length - 1)));
+              }}
+              renderItem={({ item }) => (
+                <Pressable
+                  style={{ width }}
+                  className="h-48 justify-center"
+                  onPress={() => {
+                    if (item.link) router.push(item.link as any);
+                  }}
                 >
-                  <Image
-                    source={{ uri: item.image }}
-                    className="w-full h-full absolute inset-0"
-                    resizeMode="cover"
-                  />
+                  <View
+                    style={{ width: BANNER_CARD_WIDTH }}
+                    className="mx-4 h-48 relative bg-gray-200 overflow-hidden rounded-xl"
+                  >
+                    <Image
+                      source={{ uri: item.image }}
+                      className="w-full h-full absolute inset-0"
+                      resizeMode="cover"
+                    />
 
-                  <View className="absolute inset-0 bg-black/40" />
+                    <View className="absolute inset-0 bg-black/40" />
 
-                  <View className="absolute bottom-4 left-4 right-4 z-10">
-                    <Text className="text-white font-bold text-2xl">
-                      {item.title}
-                    </Text>
-                    <Text className="text-white text-sm font-medium mt-1">
-                      {item.subtitle}
-                    </Text>
-                    <View className="mt-2 bg-white px-4 py-2 rounded-full self-start">
-                      <Text className="text-primary text-xs font-bold">
-                        Get Now
+                    <View className="absolute bottom-4 left-4 right-4 z-10">
+                      <Text className="text-white font-bold text-2xl">
+                        {item.title}
                       </Text>
+                      {item.subtitle && (
+                        <Text className="text-white text-sm font-medium mt-1">
+                          {item.subtitle}
+                        </Text>
+                      )}
+                      {item.link && (
+                        <View className="mt-2 bg-white px-4 py-2 rounded-full self-start">
+                          <Text className="text-primary text-xs font-bold">
+                            Get Now
+                          </Text>
+                        </View>
+                      )}
                     </View>
                   </View>
-                </View>
-              </View>
-            )}
-          />
+                </Pressable>
+              )}
+            />
 
-          {/* Pagination Dots */}
-          <View className="flex-row justify-center mt-4 gap-2">
-            {BANNERS.map((_, index) => (
-              <View
-                key={index}
-                className={`h-2 rounded-full ${
-                  index === activeBannerIndex
-                    ? "bg-primary w-6"
-                    : "bg-gray-300 w-2"
-                }`}
-              />
-            ))}
+            {/* Pagination Dots */}
+            <View className="flex-row justify-center mt-4 gap-2">
+              {banners.map((_, index) => (
+                <View
+                  key={index}
+                  className={`h-2 rounded-full ${
+                    index === activeBannerIndex
+                      ? "bg-primary w-6"
+                      : "bg-gray-300 w-2"
+                  }`}
+                />
+              ))}
+            </View>
           </View>
-        </View>
+        ) : null}
 
         {/* Categories */}
         <View className="mb-6">
@@ -172,7 +204,7 @@ export default function Home() {
           </View>
 
           {loading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
+            <ProductGridSkeleton count={4} />
           ) : (
             <View className="flex-row flex-wrap justify-between">
               {products.slice(0, 4).map((product) => (

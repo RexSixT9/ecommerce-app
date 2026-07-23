@@ -4,13 +4,13 @@ import {
   Text,
   ScrollView,
   Pressable,
-  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/Header";
 import { useWishlist } from "src/context/WishlistContext";
 import { useRouter } from "expo-router";
 import ProductCard from "src/components/ProductCard";
+import { ProductGridSkeleton } from "src/components/Skeleton";
 import { COLORS } from "@/constants";
 import EmptyStateCard from "src/components/EmptyStateCard";
 
@@ -22,8 +22,8 @@ export default function Favorites() {
     return (
       <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
         <Header title="Favorites" showCart showMenu />
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color={COLORS.primary} />
+        <View className="flex-1 px-4 pt-4">
+          <ProductGridSkeleton count={4} />
         </View>
       </SafeAreaView>
     );

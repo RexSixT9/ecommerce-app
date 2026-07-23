@@ -12,6 +12,7 @@ import {
   Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 export default function Page() {
   const { signIn, setActive, isLoaded } = useSignIn();
@@ -53,8 +54,12 @@ export default function Page() {
           setShowEmailCode(true);
         }
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      Toast.show({
+        type: "error",
+        text1: "Sign In Failed",
+        text2: err?.errors?.[0]?.message ?? "Invalid email or password",
+      });
     } finally {
       setLoading(false);
     }
@@ -78,8 +83,12 @@ export default function Page() {
         });
         router.replace("/");
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      Toast.show({
+        type: "error",
+        text1: "Verification Failed",
+        text2: err?.errors?.[0]?.message ?? "Invalid verification code",
+      });
     } finally {
       setLoading(false);
     }
@@ -189,10 +198,10 @@ export default function Page() {
           </View>
 
           <Pressable
-            className="w-full bg-primary py-4 rounded-full items-center"
+            className={`w-full py-4 rounded-full items-center ${loading || !code ? "bg-gray-200" : "bg-primary"}`}
             onPress={onVerifyPress}
-            disabled={loading}
-            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+            disabled={loading || !code}
+            style={({ pressed }) => (!loading && code ? { opacity: pressed ? 0.8 : 1 } : {})}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />

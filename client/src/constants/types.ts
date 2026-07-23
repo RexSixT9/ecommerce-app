@@ -109,6 +109,19 @@ export interface Order {
     createdAt: string;
 }
 
+export interface Banner {
+  _id: string;
+  image: string;
+  title: string;
+  subtitle?: string;
+  link?: string;
+  isActive: boolean;
+  order: number;
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+}
+
 export type WishlistContextType = {
     wishlist: Product[];
     toggleWishlist: (product: Product) => Promise<void>;

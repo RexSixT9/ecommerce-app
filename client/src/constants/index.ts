@@ -6,6 +6,9 @@ export const COLORS = {
     accent: "#FF4C3B",
     border: "#EEEEEE",
     error: "#FF4444",
+    success: "#22C55E",
+    info: "#3B82F6",
+    warning: "#F59E0B",
 };
 
 export const CATEGORIES = [

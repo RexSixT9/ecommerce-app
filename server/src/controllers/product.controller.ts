@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import Product from "../models/product.model.js";
-import { cloudinaryConfig } from "../config/cloudinary.js";
+import { getCloudinary } from "../config/cloudinary.js";
 
 const parseBooleanField = (value: unknown, fallback = false) => {
   if (typeof value === "boolean") return value;
@@ -50,7 +50,7 @@ const uploadFilesToCloudinary = async (files: Express.Multer.File[]) => {
 
   const uploadPromises = files.map((file) => {
     return new Promise<string>((resolve, reject) => {
-      const uploadStream = cloudinaryConfig.uploader.upload_stream(
+      const uploadStream = getCloudinary().uploader.upload_stream(
         { folder: "ecom/products" },
         (error, result) => {
           if (error) {
@@ -252,7 +252,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
           );
           const publicId = publicIdMatch ? publicIdMatch[1] : null;
           if (publicId) {
-            cloudinaryConfig.uploader.destroy(publicId, (error, result) => {
+            getCloudinary().uploader.destroy(publicId, (error, result) => {
               if (error) {
                 reject(error);
               } else {

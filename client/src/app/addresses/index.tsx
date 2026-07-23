@@ -19,6 +19,7 @@ import { useRouter } from "expo-router";
 import api from "src/constants/api";
 import Toast from "react-native-toast-message";
 import EmptyStateCard from "src/components/EmptyStateCard";
+import { AddressSkeleton } from "src/components/Skeleton";
 
 export default function Addresses() {
   const { getToken, isSignedIn } = useAuth();
@@ -217,8 +218,9 @@ export default function Addresses() {
       <Header title="Shipping Addresses" showBack />
 
       {loading ? (
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color={COLORS.primary} />
+        <View className="flex-1 px-4 pt-4">
+          <AddressSkeleton />
+          <AddressSkeleton />
         </View>
       ) : !isSignedIn ? (
         <View className="flex-1 items-center justify-center px-8">

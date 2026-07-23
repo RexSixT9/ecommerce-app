@@ -3,11 +3,12 @@ import {
   ScrollView,
   Text,
   View,
-  ActivityIndicator,
   RefreshControl,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS, getStatusColor } from "@/constants";
 import { useAuth } from "@clerk/expo/";
+import { StatCardSkeleton, OrderAdminSkeleton } from "src/components/Skeleton";
 import api from "src/constants/api";
 import type { Order } from "@/constants/types";
 
@@ -58,15 +59,27 @@ export default function AdminDashboard() {
 
   if (loading && !refreshing) {
     return (
-      <View className="flex-1 justify-center items-center bg-surface">
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
+      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+        <View className="px-4 pt-4">
+          <View className="flex-row flex-wrap justify-between">
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </View>
+          <View className="mt-6">
+            <OrderAdminSkeleton />
+            <OrderAdminSkeleton />
+          </View>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
     <ScrollView
-      className="flex-1 bg-surface p-4"
+      className="flex-1 px-4 pt-4"
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -91,14 +104,14 @@ export default function AdminDashboard() {
           Recent Orders
         </Text>
         {stats.recentOrders.length === 0 ? (
-          <View className="bg-white p-6 rounded-2xl border border-gray-100 items-center">
+          <View className="bg-white p-6 rounded-xl border border-border items-center">
             <Text className="text-secondary">No recent orders</Text>
           </View>
         ) : (
           stats.recentOrders.map((order) => (
             <View
               key={order._id}
-              className="bg-white p-5 rounded-2xl border border-gray-100 mb-3"
+              className="bg-white p-5 rounded-xl border border-border shadow-sm mb-4"
             >
               <View className="flex-row justify-between items-center mb-3">
                 <View>
@@ -129,11 +142,11 @@ export default function AdminDashboard() {
                 ))}
               </View>
 
-              <View className="h-[1px] bg-gray-100 mb-3" />
+              <View className="h-px bg-gray-100 mb-3" />
 
               <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center">
-                  <View className="w-8 h-8 rounded-full bg-gray-100 items-center justify-center mr-2">
+                  <View className="w-8 h-8 rounded-full bg-surface items-center justify-center mr-2">
                     <Text className="text-primary font-bold text-xs">
                       {(typeof order.user === "object" && order.user?.name ? order.user.name : "?").charAt(0).toUpperCase()}
                     </Text>
@@ -151,11 +164,12 @@ export default function AdminDashboard() {
         )}
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const StatCard = ({ label, value }: { label: string; value: string }) => (
-  <View className="bg-white p-5 rounded-2xl border border-gray-100 w-[48%] mb-4 justify-center">
+  <View className="bg-white p-5 rounded-xl border border-border shadow-sm w-[48%] mb-4 justify-center">
     <Text className="text-xl font-bold text-primary mb-1">{value}</Text>
     <Text className="text-secondary text-xs font-medium uppercase tracking-wide">
       {label}

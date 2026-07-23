@@ -117,14 +117,6 @@ export default function SideMenu() {
                 <Text className="text-secondary text-sm mt-1" numberOfLines={2}>
                   Sign in for a personalized experience.
                 </Text>
-                <Pressable
-                  className="mt-4 bg-primary py-2.5 rounded-full items-center"
-                  onPress={() => handleNavigation("/sign-in")}
-                >
-                  <Text className="text-white font-bold text-sm">
-                    Sign In / Sign Up
-                  </Text>
-                </Pressable>
               </View>
             )}
           </View>
@@ -157,9 +149,9 @@ export default function SideMenu() {
             ))}
           </View>
 
-          {/* Logout */}
-          {user && (
-            <View className="px-5 pb-6 pt-2 border-t border-border">
+          {/* Footer */}
+          <View className="px-5 pb-6 pt-2 border-t border-border">
+            {user ? (
               <Pressable
                 className="flex-row items-center justify-center py-3.5 rounded-xl border border-accent/30 bg-accent/5"
                 onPress={handleLogout}
@@ -172,8 +164,21 @@ export default function SideMenu() {
                 />
                 <Text className="text-accent font-bold ml-2">Logout</Text>
               </Pressable>
-            </View>
-          )}
+            ) : (
+              <Pressable
+                className="flex-row items-center justify-center py-3.5 rounded-xl bg-primary"
+                onPress={() => handleNavigation("/sign-in")}
+                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+              >
+                <Ionicons
+                  name="log-in-outline"
+                  size={20}
+                  color={COLORS.background}
+                />
+                <Text className="text-white font-bold ml-2">Sign In / Sign Up</Text>
+              </Pressable>
+            )}
+          </View>
         </SafeAreaView>
       </Animated.View>
     </>

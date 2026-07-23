@@ -86,6 +86,7 @@ export default function SignUpScreen() {
         Toast.show({
           type: "error",
           text1: "Verification incomplete",
+          text2: "Please try again with a new code",
         });
       }
     } catch (err: any) {
@@ -199,7 +200,11 @@ export default function SignUpScreen() {
       ) : (
         <>
           <Pressable
-            onPress={() => setPendingVerification(false)}
+            onPress={() => {
+              setPendingVerification(false);
+              setCode("");
+              setPassword("");
+            }}
             className="absolute top-12 left-6 z-10"
           >
             <Ionicons name="arrow-back" size={24} color={COLORS.primary} />

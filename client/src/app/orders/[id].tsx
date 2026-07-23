@@ -1,12 +1,13 @@
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, ScrollView, Text, View, ActivityIndicator } from "react-native";
+import { Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/Header";
 import { COLORS } from "@/constants";
 import type { Order, Product } from "@/constants/types";
 import { useAuth } from "@clerk/expo";
+import { ProductDetailSkeleton } from "src/components/Skeleton";
 import api from "src/constants/api";
 
 export default function OrderDetails() {
@@ -42,8 +43,8 @@ export default function OrderDetails() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-surface justify-center items-center">
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <SafeAreaView className="flex-1 bg-surface">
+        <ProductDetailSkeleton />
       </SafeAreaView>
     );
   }

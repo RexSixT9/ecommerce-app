@@ -1,12 +1,13 @@
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, Pressable, View, ActivityIndicator, ScrollView, Image } from "react-native";
+import { FlatList, Text, Pressable, View, ScrollView, Image } from "react-native";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/Header";
 import { COLORS, getStatusColor } from "@/constants";
 import type { Order, Product } from "@/constants/types";
 import EmptyStateCard from "src/components/EmptyStateCard";
+import { OrderCardSkeleton } from "src/components/Skeleton";
 import {  formatDate } from "@/assets/assets";
 import { useAuth } from "@clerk/expo";
 import api from "src/constants/api";
@@ -56,8 +57,9 @@ export default function Orders() {
             <Header title="My Orders" showBack />
 
             {loading ? (
-                <View className="flex-1 justify-center items-center">
-                    <ActivityIndicator size="large" color={COLORS.primary} />
+                <View className="flex-1 pt-4 px-4">
+                    <OrderCardSkeleton />
+                    <OrderCardSkeleton />
                 </View>
             ) : orders.length === 0 ? (
                 <View className="flex-1 items-center justify-center px-8">

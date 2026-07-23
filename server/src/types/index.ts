@@ -91,6 +91,19 @@ export interface IUser extends Document {
     updatedAt: Date;
 }
 
+export interface IBanner extends Document {
+    image: string;
+    title: string;
+    subtitle?: string;
+    link?: string;
+    isActive: boolean;
+    order: number;
+    startDate?: Date;
+    endDate?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export interface IWishlist extends Document {
     user: Types.ObjectId;
     products: Types.ObjectId[];

@@ -1,17 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Ionicons from "@react-native-vector-icons/ionicons";
-
-const COLORS = {
-  primary: "#111111",
-  secondary: "#666666",
-  surface: "#F7F7F7",
-  accent: "#FF4C3B",
-  error: "#FF4444",
-  success: "#22C55E",
-  info: "#3B82F6",
-  background: "#FFFFFF",
-};
+import { COLORS } from "../constants";
 
 interface CustomToastProps {
   text1?: string;
@@ -27,9 +17,8 @@ const CustomToast: React.FC<CustomToastProps> = ({
   accentColor = COLORS.success,
 }) => (
   <View style={styles.container}>
-    <View style={[styles.accentBar, { backgroundColor: accentColor }]} />
-    <View style={styles.iconContainer}>
-      <Ionicons name={icon as any} size={22} color={accentColor} />
+    <View style={[styles.iconCircle, { backgroundColor: accentColor + "25" }]}>
+      <Ionicons name={icon as any} size={20} color={accentColor} />
     </View>
     <View style={styles.textContainer}>
       {text1 ? <Text style={styles.text1} numberOfLines={1}>{text1}</Text> : null}
@@ -64,7 +53,7 @@ export const toastConfig = {
     <CustomToast
       {...props}
       icon="warning"
-      accentColor="#F59E0B"
+      accentColor={COLORS.warning}
     />
   ),
 };
@@ -74,29 +63,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: COLORS.background,
-    borderRadius: 12,
+    borderRadius: 9999,
     marginHorizontal: 16,
-    marginTop: 50,
-    paddingVertical: 12,
-    paddingRight: 16,
-    overflow: "hidden",
+    marginTop: 60,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
   },
-  accentBar: {
-    width: 4,
-    height: "100%",
-    position: "absolute",
-    left: 0,
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
-  },
-  iconContainer: {
-    marginLeft: 14,
-    marginRight: 10,
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
   },
   textContainer: {
     flex: 1,

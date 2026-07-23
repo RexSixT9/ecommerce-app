@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  ActivityIndicator,
   ScrollView,
   Image,
   Dimensions,
@@ -17,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS } from "src/constants";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Toast from "react-native-toast-message";
+import { ProductDetailSkeleton } from "src/components/Skeleton";
 import api from "src/constants/api";
 
 const { width } = Dimensions.get("window");
@@ -62,8 +62,8 @@ export default function ProductDetails() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <SafeAreaView className="flex-1 bg-white">
+        <ProductDetailSkeleton />
       </SafeAreaView>
     );
   }

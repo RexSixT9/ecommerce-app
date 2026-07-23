@@ -17,6 +17,7 @@ import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { useAuth } from "@clerk/expo";
 import api from "src/constants/api";
 import EmptyStateCard from "src/components/EmptyStateCard";
+import { AddressSkeleton } from "src/components/Skeleton";
 
 export default function Checkout() {
   const { getToken, isSignedIn } = useAuth();
@@ -148,8 +149,11 @@ export default function Checkout() {
 
   if (pageLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-surface justify-center items-center">
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
+        <View className="flex-1 px-4 pt-4">
+          <AddressSkeleton />
+          <AddressSkeleton />
+        </View>
       </SafeAreaView>
     );
   }

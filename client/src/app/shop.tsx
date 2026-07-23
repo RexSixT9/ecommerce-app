@@ -3,7 +3,6 @@ import {
   Text,
   TextInput,
   Pressable,
-  ActivityIndicator,
   FlatList,
 } from "react-native";
 import { useEffect, useState } from "react";
@@ -13,6 +12,7 @@ import Header from "src/components/Header";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { COLORS } from "src/constants";
 import ProductCard from "src/components/ProductCard";
+import { ProductGridSkeleton } from "src/components/Skeleton";
 import api from "src/constants/api";
 import Toast from "react-native-toast-message";
 
@@ -103,8 +103,8 @@ export default function Shop() {
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color={COLORS.primary} />
+        <View className="px-4 pt-4">
+          <ProductGridSkeleton count={6} />
         </View>
       ) : (
         <FlatList
@@ -122,7 +122,7 @@ export default function Shop() {
           ListFooterComponent={() =>
             loadingMore ? (
               <View className="py-4">
-                <ActivityIndicator size="small" color={COLORS.primary} />
+                <ProductGridSkeleton count={2} />
               </View>
             ) : null
           }
